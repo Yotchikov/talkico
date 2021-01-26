@@ -13,6 +13,7 @@ function App() {
     >
       <Router>{routes}</Router>
     </AuthContext.Provider>
+    
   );
 }
 

@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
+import { useHttp } from '../hooks/http.hook';
 
 export const Auth = () => {
   const [form, setForm] = useState({ email: '', password: '' });
+  const { loading, error, request } = useHttp();
 
   const handleInput = (e) => {
     setForm({ ...form, email: e.target.email, password: e.target.password });
   };
 
-  const handleLogin = (e) => {
-    
-  }
+  const handleLogin = async () => {};
+
+  const handleRegister = async () => {
+    try {
+      const data = await request('/api/auth/register', 'POST', {...form});
+      alert('Пользователь зарегистрирован!')
+    }
+    catch (e) {
+      alert('Что-то пошло не так!')
+    }
+  };
 
   return (
     <div>
