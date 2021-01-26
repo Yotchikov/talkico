@@ -1,23 +1,34 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { useHttp } from '../hooks/http.hook';
 
 export const Auth = () => {
+  const auth = useContext(AuthContext);
   const [form, setForm] = useState({ email: '', password: '' });
-  const { loading, error, request } = useHttp();
+  const { loading, error, clearError, request } = useHttp();
 
   const handleInput = (e) => {
-    setForm({ ...form, email: e.target.email, password: e.target.password });
+    setForm({ ...form, [e.target.name]: e.target.value });
+    console.log(form);
   };
 
-  const handleLogin = async () => {};
-
-  const handleRegister = async () => {
+  const handleLogin = async (e) => {
     try {
-      const data = await request('/api/auth/register', 'POST', {...form});
-      alert('Пользователь зарегистрирован!')
+      e.preventDefault();
+      const data = await request('/api/auth/login', 'POST', { ...form });
+      auth.login(data.token, data.userId)
+    } catch (e) {
+      alert(e.message);
     }
-    catch (e) {
-      alert('Что-то пошло не так!')
+  };
+
+  const handleRegister = async (e) => {
+    try {
+      e.preventDefault();
+      const data = await request('/api/auth/register', 'POST', { ...form });
+      alert(data.message);
+    } catch (e) {
+      alert(e.message);
     }
   };
 
@@ -31,6 +42,7 @@ export const Auth = () => {
           placeholder="email"
           name="email"
           onChange={handleInput}
+          disabled={loading}
           required
         />
 
@@ -40,6 +52,7 @@ export const Auth = () => {
           placeholder="password"
           name="password"
           onChange={handleInput}
+          disabled={loading}
           required
         />
 

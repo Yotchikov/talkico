@@ -14,7 +14,7 @@ export const useRoutes = (isAuthenticated) => {
         <Route path="/room/:id">
           <Room />
         </Route>
-        <Redirect to="/" />
+        <Redirect to="/create" />
       </Switch>
     );
   return (
