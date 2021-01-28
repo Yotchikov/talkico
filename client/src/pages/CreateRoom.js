@@ -7,5 +7,5 @@ export const CreateRoom = withRouter((props) => {
     props.history.push(`/room/${roomId}`);
   };
 
-  return <button onClick={create}>Создайте комнату</button>;
+  return <button className="btn btn-success m-3" onClick={create}>Создайте комнату</button>;
 });

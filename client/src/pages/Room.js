@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuid } from 'uuid';
 import Peer from 'peerjs';
+import { withRouter } from 'react-router-dom';
 
 const Video = (props) => {
   const ref = useRef();
@@ -12,7 +13,7 @@ const Video = (props) => {
   }, []);
 };
 
-export const Room = (props) => {
+export const Room = withRouter((props) => {
   const roomId = props.match.params.roomId;
   const myId = uuid();
   const socketRef = useRef();
@@ -65,11 +66,11 @@ export const Room = (props) => {
 
   return (
     <div>
-      <h6>You are in romm {roomId}</h6>
+      <h6>You are in room {roomId}</h6>
       <video muted playsInLine autoPlay ref={myVideoRef} />
       {peers.map((peer, index) => {
         return <Video key={index} peer={peer} />;
       })}
     </div>
   );
-};
+});
