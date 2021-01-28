@@ -16,7 +16,7 @@ export const Auth = () => {
     try {
       e.preventDefault();
       const data = await request('/api/auth/login', 'POST', { ...form });
-      auth.login(data.token, data.userId)
+      auth.login(data.token, data.userId);
     } catch (e) {
       alert(e.message);
     }
@@ -33,36 +33,44 @@ export const Auth = () => {
   };
 
   return (
-    <div>
-      <h1>Auth Page</h1>
-      <form>
+    <form className="m-3">
+      <div className="form-group">
         <label for="email">Email</label>
         <input
-          type="text"
-          placeholder="email"
+          type="email"
+          className="form-control"
           name="email"
+          aria-describedby="emailHelp"
+          placeholder="Email"
           onChange={handleInput}
-          disabled={loading}
-          required
         />
-
-        <label for="password">Password</label>
+      </div>
+      <div className="form-group">
+        <label for="password">Пароль</label>
         <input
           type="password"
-          placeholder="password"
+          className="form-control"
           name="password"
+          placeholder="Пароль"
           onChange={handleInput}
-          disabled={loading}
-          required
         />
-
-        <button type="submit" onClick={handleLogin}>
-          Войти
-        </button>
-        <button type="submit" onClick={handleRegister}>
-          Зарегистрироваться
-        </button>
-      </form>
-    </div>
+      </div>
+      <button
+        type="submit"
+        className="btn btn-success mr-3"
+        onClick={handleLogin}
+        disabled={loading}
+      >
+        Войти
+      </button>
+      <button
+        type="submit"
+        className="btn btn-outline-success"
+        onClick={handleRegister}
+        disabled={loading}
+      >
+        Зарегистрироваться
+      </button>
+    </form>
   );
 };
