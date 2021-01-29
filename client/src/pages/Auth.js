@@ -8,7 +8,7 @@ export const Auth = () => {
   const { loading, error, clearError, request } = useHttp();
 
   const handleInput = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value.trim() });
+    setForm({ ...form, [e.target.name]: e.target.value.replace(/\s/g, '') });
   };
 
   const handleLogin = async (e) => {
@@ -34,7 +34,7 @@ export const Auth = () => {
   return (
     <form className="m-3">
       <div className="form-group">
-        <label for="email">Email</label>
+        <label htmlFor="email">Email</label>
         <input
           type="text"
           className="form-control"
@@ -46,7 +46,7 @@ export const Auth = () => {
         />
       </div>
       <div className="form-group">
-        <label for="password">Пароль</label>
+        <label htmlFor="password">Пароль</label>
         <input
           type="password"
           className="form-control"

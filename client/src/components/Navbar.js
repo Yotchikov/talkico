@@ -10,8 +10,8 @@ export const Navbar = () => {
 
   if (auth.token)
     return (
-      <nav class="navbar navbar-light bg-light">
-        <span class="navbar-brand mb-0 h1">TALKICO</span>
+      <nav className="navbar navbar-light bg-light">
+        <span className="navbar-brand mb-0 h1">TALKICO</span>
         <button
           class="btn btn-outline-success"
           type="button"
@@ -22,8 +22,8 @@ export const Navbar = () => {
       </nav>
     );
   return (
-    <nav class="navbar navbar-light bg-light">
-      <span class="navbar-brand mb-0 h1">TALKICO</span>
+    <nav className="navbar navbar-light bg-light">
+      <span className="navbar-brand mb-0 h1">TALKICO</span>
     </nav>
   );
 };
