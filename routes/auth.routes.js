@@ -46,7 +46,7 @@ router.post(
 router.post(
   '/login',
   [
-    check('email', 'Invalid email').normalizeEmail().isEmail(),
+    check('email', 'Invalid email').isEmail(),
     check('password', 'Invalid password').exists(),
   ],
   async (req, res) => {
@@ -60,13 +60,13 @@ router.post(
 
       const { email, password } = req.body;
 
-      const user = User.findOne({ email });
+      const user = await User.findOne({ email });
       if (!user)
         return res
           .status(400)
           .json({ message: `User with email ${email} is not found` });
 
-      const isMatch = bcrypt.compare(password, user.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) return res.status(400).json({ message: 'Wrong password' });
 
       const token = jwt.sign({ userId: user.id }, config.get('jwtSecret'), {

@@ -8,8 +8,7 @@ export const Auth = () => {
   const { loading, error, clearError, request } = useHttp();
 
   const handleInput = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-    console.log(form);
+    setForm({ ...form, [e.target.name]: e.target.value.trim() });
   };
 
   const handleLogin = async (e) => {
@@ -37,8 +36,9 @@ export const Auth = () => {
       <div className="form-group">
         <label for="email">Email</label>
         <input
-          type="email"
+          type="text"
           className="form-control"
+          value={form.email}
           name="email"
           aria-describedby="emailHelp"
           placeholder="Email"
@@ -50,6 +50,7 @@ export const Auth = () => {
         <input
           type="password"
           className="form-control"
+          value={form.password}
           name="password"
           placeholder="Пароль"
           onChange={handleInput}
