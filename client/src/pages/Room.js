@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import io from 'socket.io-client';
 import { v4 as uuid } from 'uuid';
 import Peer from 'peerjs';
-import { withRouter } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const Video = (props) => {
   const ref = useRef();
@@ -13,8 +13,8 @@ const Video = (props) => {
   }, []);
 };
 
-export const Room = withRouter((props) => {
-  const roomId = props.match.params.roomId;
+export const Room = () => {
+  const roomId = useParams().id;
   const myId = uuid();
   const socketRef = useRef();
   const myVideoRef = useRef();
@@ -73,4 +73,4 @@ export const Room = withRouter((props) => {
       })}
     </div>
   );
-});
+};
