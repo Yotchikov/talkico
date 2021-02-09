@@ -6,11 +6,10 @@ const http = require('http');
 const app = express();
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-const PORT = config.get('port') || 3000;
+const PORT = config.get('port') || 5000;
 
-const users = {};
-
-const socketToRoom = {};
+const rooms = {};
+const MAX_MEMBERS = config.get('maxMembers') || 4;
 
 app.use(express.json({ extended: true }));
 
@@ -25,14 +24,32 @@ async function start() {
     });
 
     io.on('connection', (socket) => {
-      console.log('Кто-то подключился');
-      socket.on('join room', (roomID) => {
+      socket.on('join-room', (roomId) => {
+        console.log(rooms);
+        console.log(`Пользователь ${socket.id} пытается войти в комнату`);
+        if (rooms[roomId]) {
+          const length = rooms[roomId].length;
+          if (length >= MAX_MEMBERS) {
+            socket.emit('room-full');
+            console.log(`Пользователю ${socket.id} не удалось зайти в комнату`);
+            return;
+          }
+          rooms[roomId].push(socket.id);
+          console.log(`Пользователь ${socket.id} успешно зашел зайти в комнату`);
+        } else {
+          rooms[roomId] = [socket.id];
+          console.log(`Пользователь ${socket.id} стал первым участником комнаты`);
+        }
+      });
+      /*socket.on('join room', (roomID) => {
+        console.log(`Пользователь ${socket.id} пытается войти в комнату`);
         if (users[roomID]) {
           const length = users[roomID].length;
           if (length === 4) {
             socket.emit('room full');
             return;
           }
+          console.log(`Пользователь ${socket.id} вошел в комнату`);
           users[roomID].push(socket.id);
         } else {
           users[roomID] = [socket.id];
@@ -58,14 +75,13 @@ async function start() {
       });
 
       socket.on('disconnect', () => {
-        console.log('Кто-то отключился');
         const roomID = socketToRoom[socket.id];
         let room = users[roomID];
         if (room) {
           room = room.filter((id) => id !== socket.id);
           users[roomID] = room;
         }
-      });
+      });*/
     });
 
     server.listen(PORT, () => {

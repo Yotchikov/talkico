@@ -1,5 +1,6 @@
 {
   "port": 5000,
   "mongoUri": "mongodb+srv://admin:wJUKw6mo@cluster0.9oi6p.mongodb.net/app?retryWrites=true&w=majority",
-  "jwtSecret": "iloveyou"
+  "jwtSecret": "iloveyou",
+  "maxMembers": "4"
 }
