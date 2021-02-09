@@ -55,5 +55,5 @@ export const usePeer = (roomId) => {
     });
   };
 
-  return { myPeers, initialize };
+  return { isFull, myPeers, initialize };
 };
