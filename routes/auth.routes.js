@@ -64,10 +64,10 @@ router.post(
       if (!user)
         return res
           .status(400)
-          .json({ message: `User with email ${email} is not found` });
+          .json({ message: `Wrong email or password` });
 
       const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(400).json({ message: 'Wrong password' });
+      if (!isMatch) return res.status(400).json({ message: 'Wrong email or password' });
 
       const token = jwt.sign({ userId: user.id }, config.get('jwtSecret'), {
         expiresIn: '1h',
