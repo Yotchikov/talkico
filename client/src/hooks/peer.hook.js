@@ -7,12 +7,18 @@ export const usePeer = (roomId) => {
   const socketRef = useRef();
   const myId = uuid();
   const [myPeers, setMyPeers] = useState([]);
+  const [isFull, setIsFull] = useState(false);
 
   const initialize = (myStream) => {
     socketRef.current = io.connect('/');
 
     // Текущий пользователь заходит в комнату roomId
     socketRef.current.emit('join-room', roomId, myId);
+
+    // Комната roomId полна
+    socketRef.current.on('room-full', () => {
+      setIsFull(true);
+    });
 
     // Подключается другой пользователь
     socketRef.current.on('user-connected', (userId) => {
@@ -49,5 +55,5 @@ export const usePeer = (roomId) => {
     });
   };
 
-  return { myPeers, initialize };
+  return { isFull, myPeers, initialize };
 };
