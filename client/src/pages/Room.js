@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { usePeer } from '../hooks/peer.hook';
+import { useHttp } from '../hooks/http.hook';
 
 const Video = (props) => {
   const ref = useRef();
@@ -12,6 +13,20 @@ const Video = (props) => {
 };
 
 export const Room = () => {
+  const roomId = useParams().id;
+  const { loading, error, clearError, request } = useHttp();
+
+  useEffect(async () => {
+    try {
+      const data = await request('/api/room/join', 'POST', { roomId });
+      alert('Вы успешно зашли в комнату!');
+    } catch (e) {
+      alert(e.message);
+    }
+  }, []);
+
+  return <div>Hello</div>
+  /*
   const roomId = useParams().id;
   const peer = usePeer(roomId);
   const peers = peer.myPeers;
@@ -34,5 +49,5 @@ export const Room = () => {
         return <Video key={index} peer={peer} />;
       })}
     </div>
-  );
+  );*/
 };

@@ -14,6 +14,7 @@ const MAX_MEMBERS = config.get('maxMembers') || 4;
 app.use(express.json({ extended: true }));
 
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/room', require('./routes/room.routes'));
 
 async function start() {
   try {
