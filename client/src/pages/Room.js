@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { usePeer } from '../hooks/peer.hook';
 import { useHttp } from '../hooks/http.hook';
+import { withRouter } from 'react-router-dom';
 
 const Video = (props) => {
   const ref = useRef();
@@ -12,9 +13,18 @@ const Video = (props) => {
   }, []);
 };
 
-export const Room = () => {
+export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { loading, error, clearError, request } = useHttp();
+  const stopConference = async () => {
+    try {
+      const data = await request('/api/room/delete', 'POST', { roomId });
+      alert(data.message)
+      props.history.push('/create');
+    } catch (e) {
+      alert(e.message);
+    }
+  };
 
   useEffect(async () => {
     try {
@@ -25,7 +35,14 @@ export const Room = () => {
     }
   }, []);
 
-  return <div>Hello</div>
+  return (
+    <>
+      <div>Hello</div>
+      <button className="btn btn-success" onClick={stopConference}>
+        Завершить конференцию
+      </button>
+    </>
+  );
   /*
   const roomId = useParams().id;
   const peer = usePeer(roomId);
@@ -50,4 +67,4 @@ export const Room = () => {
       })}
     </div>
   );*/
-};
+});

@@ -30,4 +30,20 @@ router.post('/join', (req, res) => {
   }
 });
 
+// /api/room/delete
+router.post('/delete', (req, res) => {
+  try {
+    const { roomId } = req.body;
+    console.log(roomId);
+    console.log(roomIdList);
+    if (roomIdList !== undefined && roomIdList.includes(roomId)) {
+      roomIdList.splice(roomIdList.indexOf(roomId), 1);
+      res.status(200).json({ message: 'Successfully deleted' });
+    } else
+      res.status(404).json({ message: `Room with id ${roomId} doesn't exist` });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+});
+
 module.exports = router;
