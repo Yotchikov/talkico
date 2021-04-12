@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import Peer from 'peerjs';
 
 export const useConnection = (roomId) => {
-  const myId = uuid();
+  const [myId, setMyId] = useState('');
   const [peerPairs, setPeerPairs] = useState([]);
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
@@ -92,6 +92,7 @@ export const useConnection = (roomId) => {
       .getUserMedia({ video: true, audio: true })
       .then((myStream) => {
         socketRef.current = io.connect('/');
+        setMyId(socketRef.current.id);
         initializeSocketEvents(myStream);
       });
   };

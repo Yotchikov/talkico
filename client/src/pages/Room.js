@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { usePeer } from '../hooks/connection.hook';
+import { useConnection } from '../hooks/connection.hook';
 import { useHttp } from '../hooks/http.hook';
 import { withRouter } from 'react-router-dom';
 
@@ -16,6 +16,7 @@ const Video = (props) => {
 export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { request } = useHttp();
+  const { start, peerPairs } = useConnection();
 
   const stopConference = async () => {
     try {
@@ -31,6 +32,7 @@ export const Room = withRouter((props) => {
     try {
       const data = await request('/api/room/join', 'POST', { roomId });
       alert('Вы успешно зашли в комнату!');
+      start();
     } catch (e) {
       alert(e.message);
     }

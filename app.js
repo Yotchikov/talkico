@@ -25,24 +25,31 @@ async function start() {
     });
 
     io.on('connection', (socket) => {
+      // Пользователь заходит в комнату
       socket.on('join-room', (roomId, userId) => {
-        console.log(rooms);
-        console.log(`Пользователь ${socket.id} пытается войти в комнату`);
+        console.log(
+          `Пользователь ${userId} пытается войти в комнату ${roomId}`
+        );
+        // Если комната уже существует
         if (rooms[roomId]) {
+          // Проверка на максимально допустимое число людей в комнате
           const length = rooms[roomId].length;
           if (length >= MAX_MEMBERS) {
             socket.emit('room-full');
-            console.log(`Пользователю ${socket.id} не удалось зайти в комнату`);
+            console.log(
+              `Пользователю ${userId} не удалось зайти в комнату ${roomId} из-за превышения лимита`
+            );
             return;
           }
-          rooms[roomId].push(socket.id);
+          socket.to(userId).emit('join-success', rooms[roomId]);
+          rooms[roomId].push(userId);
           console.log(
-            `Пользователь ${socket.id} успешно зашел зайти в комнату`
+            `Пользователь ${userId} успешно зашел зайти в комнату ${roomId}`
           );
         } else {
-          rooms[roomId] = [socket.id];
+          rooms[roomId] = [userId];
           console.log(
-            `Пользователь ${socket.id} стал первым участником комнаты`
+            `Пользователь ${userId} стал первым участником комнаты ${roomId}`
           );
         }
 
