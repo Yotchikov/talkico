@@ -26,34 +26,41 @@ async function start() {
 
     io.on('connection', (socket) => {
       // Пользователь заходит в комнату
-      socket.on('join-room', (roomId, userId) => {
+      socket.on('join-room', (roomId) => {
         console.log(
-          `Пользователь ${userId} пытается войти в комнату ${roomId}`
+          `Пользователь ${socket.id} пытается войти в комнату ${roomId}`
         );
-        // Если комната уже существует
+
+        // Добавление в массив с участниками комнат
         if (rooms[roomId]) {
           // Проверка на максимально допустимое число людей в комнате
           const length = rooms[roomId].length;
           if (length >= MAX_MEMBERS) {
             socket.emit('room-full');
             console.log(
-              `Пользователю ${userId} не удалось зайти в комнату ${roomId} из-за превышения лимита`
+              `Пользователю ${socket.id} не удалось зайти в комнату ${roomId} из-за превышения лимита`
             );
             return;
           }
-          socket.to(userId).emit('join-success', rooms[roomId]);
-          rooms[roomId].push(userId);
+          socket.emit('join-success', rooms[roomId]);
+          rooms[roomId].push(socket.id);
           console.log(
-            `Пользователь ${userId} успешно зашел зайти в комнату ${roomId}`
+            `Пользователь ${socket.id} успешно зашел зайти в комнату ${roomId}`
           );
         } else {
-          rooms[roomId] = [userId];
+          rooms[roomId] = [socket.id];
           console.log(
-            `Пользователь ${userId} стал первым участником комнаты ${roomId}`
+            `Пользователь ${socket.id} стал первым участником комнаты ${roomId}`
           );
         }
 
-        socket.join(roomId);
+        // Поступает звонок от пользователя
+        socket.on('call', (peerId, userId) => {
+          console.log(`Пользователь ${socket.id} звонит пользователю ${userId}`);
+          io.to(userId).emit('user-connected', peerId);
+        });
+
+        /*socket.join(roomId);
         socket.to(roomId).broadcast.emit('user-connected', userId);
 
         socket.on('send-signal', (senderId, receiverId) => {
@@ -65,7 +72,7 @@ async function start() {
         socket.on('disconnect', () => {
           rooms[roomId] = rooms[roomId].filter((id) => id !== userId);
           socket.to(roomId).broadcast.emit('user-disconnected', userId);
-        });
+        });*/
       });
     });
 

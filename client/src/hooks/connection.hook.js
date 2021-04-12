@@ -35,13 +35,15 @@ export const useConnection = (roomId) => {
 
   // Инициализация событий сокетов
   const initializeSocketEvents = (stream) => {
-    socketRef.current.emit('join-room', roomId, myId);
+    socketRef.current.emit('join-room', roomId);
 
     socketRef.current.on('room-full', () => {
+      console.log('Комната полна');
       setIsFull(true);
     });
 
     socketRef.current.on('join-success', (userIdList) => {
+      console.log('Успешно вошли в комнату');
       tryToConnectToOtherUsers(userIdList, stream);
     });
 
@@ -59,7 +61,7 @@ export const useConnection = (roomId) => {
     userIdList.forEach((userId) => {
       const peer = initializeNewPeer();
       peer.on('open', (peerId) => {
-        socketRef.emit('call', peerId, userId);
+        socketRef.current.emit('call', peerId, userId);
         peer.on('call', (call) => {
           call.answer(stream);
           call.on('stream', (otherUserStream) => {
@@ -97,5 +99,5 @@ export const useConnection = (roomId) => {
       });
   };
 
-  return { start, peerPairs, isFull };
+  return { start, peerPairs, isFull, myId };
 };

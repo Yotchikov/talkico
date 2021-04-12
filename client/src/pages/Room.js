@@ -16,7 +16,7 @@ const Video = (props) => {
 export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { request } = useHttp();
-  const { start, peerPairs } = useConnection();
+  const { start, peerPairs, myId } = useConnection(roomId);
 
   const stopConference = async () => {
     try {
@@ -40,7 +40,7 @@ export const Room = withRouter((props) => {
 
   return (
     <>
-      <div>Hello</div>
+      <div>{myId}</div>
       <button className="btn btn-success m-3" onClick={stopConference}>
         Завершить конференцию
       </button>
