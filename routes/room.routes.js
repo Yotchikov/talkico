@@ -34,8 +34,6 @@ router.post('/join', (req, res) => {
 router.post('/delete', (req, res) => {
   try {
     const { roomId } = req.body;
-    console.log(roomId);
-    console.log(roomIdList);
     if (roomIdList !== undefined && roomIdList.includes(roomId)) {
       roomIdList.splice(roomIdList.indexOf(roomId), 1);
       res.status(200).json({ message: 'Successfully deleted' });
