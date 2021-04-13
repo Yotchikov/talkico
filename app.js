@@ -54,10 +54,28 @@ async function start() {
           );
         }
 
+        // Подписываем сокет на канал roomId
+        socket.join(roomId);
+
         // Поступает звонок от пользователя
-        socket.on('call', (peerId, userId) => {
-          console.log(`Пользователь ${socket.id} звонит пользователю ${userId}`);
+        socket.on('start-call', (peerId, userId) => {
           io.to(userId).emit('user-connected', peerId);
+          console.log(
+            `Пользователь ${socket.id} звонит пользователю ${userId}`
+          );
+        });
+
+        // Звонок заканчивается
+        socket.on('stop-call', (disconnectedUserId) => {
+          socket
+            .to(roomId)
+            .broadcast.emit('user-disconnected', disconnectedUserId);
+        });
+
+        // Пользователь выходит из комнаты
+        socket.on('disconnect', () => {
+          rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);
+          console.log(`Пользователь ${socket.id} вышел из комнаты ${roomId}`);
         });
 
         /*socket.join(roomId);

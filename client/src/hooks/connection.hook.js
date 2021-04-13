@@ -19,12 +19,13 @@ export const useConnection = (roomId) => {
 
   // Добавление новой связки peer'ов
   const addPeerPair = (myPeerId, otherUserPeerId) => {
-    setPeerPairs([...peerPairs, { myPeerId, otherUserPeerId }]);
+    console.log('Добавляем новую пару пиров');
+    setPeerPairs((peerPairs) => [{ myPeerId, otherUserPeerId }, ...peerPairs]);
   };
 
   // Удаление связки peer'ов
   const deletePeerPair = (otherUserPeerId) => {
-    setPeerPairs(
+    setPeerPairs((peerPairs) =>
       peerPairs.filter(
         (peerPair) =>
           peerPair.otherUserPeerId &&
@@ -48,6 +49,7 @@ export const useConnection = (roomId) => {
     });
 
     socketRef.current.on('user-connected', (newUserPeerId) => {
+      console.log('startConnection');
       startConnection(newUserPeerId, stream);
     });
 
@@ -58,15 +60,15 @@ export const useConnection = (roomId) => {
 
   // Попытка подключиться ко всем остальным пользователям в комнате
   const tryToConnectToOtherUsers = (userIdList, stream) => {
+    console.log('tryToConnect');
     userIdList.forEach((userId) => {
       const peer = initializeNewPeer();
       peer.on('open', (peerId) => {
-        socketRef.current.emit('call', peerId, userId);
+        socketRef.current.emit('start-call', peerId, userId);
         peer.on('call', (call) => {
+          addPeerPair(peerId, call.peer);
           call.answer(stream);
-          call.on('stream', (otherUserStream) => {
-            addPeerPair(peerId, call.id);
-          });
+          call.on('stream', (otherUserStream) => {});
         });
       });
     });
@@ -77,15 +79,22 @@ export const useConnection = (roomId) => {
     const peer = initializeNewPeer();
     peer.on('open', (peerId) => {
       const call = peer.call(newUserPeerId, stream);
-      call.on('stream', (otherUserStream) => {
-        addPeerPair(peerId);
-      });
+      addPeerPair(peerId, newUserPeerId);
+      call.on('stream', (otherUserStream) => {});
     });
   };
 
   // Отключиться от другого пользователя
   const disconnectFromUser = (disconnectedUserId) => {
     deletePeerPair(disconnectedUserId);
+  };
+
+  // Выйти из комнаты
+  const leaveRoom = () => {
+    peerPairs.forEach((peerPair) => {
+      socketRef.current.emit('stop-call', peerPair.myPeerId);
+    });
+    socketRef.current.disconnect();
   };
 
   // Запуск конференции
@@ -99,5 +108,5 @@ export const useConnection = (roomId) => {
       });
   };
 
-  return { start, peerPairs, isFull, myId };
+  return { start, peerPairs, isFull, myId, leaveRoom };
 };
