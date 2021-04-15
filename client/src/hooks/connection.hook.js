@@ -32,14 +32,17 @@ export const useConnection = (roomId) => {
 
   // Добавление видеопотока
   const addVideoStream = (socketId, stream) => {
-    if (connections[socketId]) {
-      setConnections((prevConnections) => {
+    setConnections((prevConnections) => {
+      if (prevConnections[socketId]) {
+        console.log('adding');
         const modifiedConnection = {
           ...prevConnections[socketId],
           otherUserStream: stream,
         };
-      });
-    }
+        return { ...prevConnections, [socketId]: modifiedConnection };
+      }
+      return prevConnections;
+    });
   };
 
   // Удаление связки peer'ов
@@ -103,7 +106,7 @@ export const useConnection = (roomId) => {
       const call = peer.call(newUserPeerId, stream);
       addConnection(newUserSocketId, peerId, newUserPeerId);
       call.on('stream', (otherUserStream) => {
-        addVideoStream(otherUserStream);
+        addVideoStream(newUserSocketId, otherUserStream);
       });
     });
     peer.on('error', (error) => {
