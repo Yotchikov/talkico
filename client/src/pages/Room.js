@@ -22,10 +22,15 @@ export const Room = withRouter((props) => {
     try {
       const data = await request('/api/room/delete', 'POST', { roomId });
       alert(data.message);
-      props.history.push('/create');
+      props.history.push('/');
     } catch (e) {
       alert(e.message);
     }
+  };
+
+  const leaveConference = () => {
+    leaveRoom();
+    props.history.push('/');
   };
 
   useEffect(async () => {
@@ -40,19 +45,12 @@ export const Room = withRouter((props) => {
 
   return (
     <div className="m-3">
-      <div>Вы - пользователь {myId}</div>
-      <div>Список пиров комнаты:</div>
-      <ul>
-        {peerPairs.map((peerPair) => (
-          <li key={peerPair.myPeerId}>
-            {peerPair.myPeerId} - {peerPair.otherUserPeerId}
-          </li>
-        ))}
-      </ul>
+      <h2>Комната {roomId}</h2>
+      <div id="video-container"></div>
       <button className="btn btn-success m-3" onClick={stopConference} disabled>
         Завершить конференцию
       </button>
-      <button className="btn btn-success m-3" onClick={leaveRoom}>
+      <button className="btn btn-success m-3" onClick={leaveConference}>
         Выйти из конференции
       </button>
     </div>

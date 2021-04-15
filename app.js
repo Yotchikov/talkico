@@ -67,6 +67,9 @@ async function start() {
 
         // Звонок заканчивается
         socket.on('stop-call', (disconnectedUserId) => {
+          console.log(
+            `Пользователь ${socket.id} прерывает звонок ${disconnectedUserId}`
+          );
           socket
             .to(roomId)
             .broadcast.emit('user-disconnected', disconnectedUserId);
@@ -77,20 +80,6 @@ async function start() {
           rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);
           console.log(`Пользователь ${socket.id} вышел из комнаты ${roomId}`);
         });
-
-        /*socket.join(roomId);
-        socket.to(roomId).broadcast.emit('user-connected', userId);
-
-        socket.on('send-signal', (senderId, receiverId) => {
-          socket
-            .to(roomId)
-            .broadcast.emit('return-signal', senderId, receiverId);
-        });
-
-        socket.on('disconnect', () => {
-          rooms[roomId] = rooms[roomId].filter((id) => id !== userId);
-          socket.to(roomId).broadcast.emit('user-disconnected', userId);
-        });*/
       });
     });
 

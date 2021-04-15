@@ -25,13 +25,15 @@ export const useConnection = (roomId) => {
 
   // Удаление связки peer'ов
   const deletePeerPair = (otherUserPeerId) => {
-    setPeerPairs((peerPairs) =>
+    setPeerPairs(
       peerPairs.filter(
         (peerPair) =>
           peerPair.otherUserPeerId &&
           peerPair.otherUserPeerId === otherUserPeerId
       )
     );
+    console.log('Я считаю что peerPairs теперь такой:');
+    console.log(peerPairs);
   };
 
   // Инициализация событий сокетов
@@ -56,6 +58,10 @@ export const useConnection = (roomId) => {
     socketRef.current.on('user-disconnected', (disconnectedUserId) => {
       disconnectFromUser(disconnectedUserId);
     });
+
+    socketRef.current.on('error', (error) => {
+      console.log('Ошибка socket:', error);
+    });
   };
 
   // Попытка подключиться ко всем остальным пользователям в комнате
@@ -68,8 +74,14 @@ export const useConnection = (roomId) => {
         peer.on('call', (call) => {
           addPeerPair(peerId, call.peer);
           call.answer(stream);
-          call.on('stream', (otherUserStream) => {});
+          call.on('stream', (otherUserStream) => {
+            createVideo(otherUserStream);
+          });
         });
+      });
+      peer.on('error', (error) => {
+        console.log('Ошибка P2P соединения:', error);
+        peer.reconnect();
       });
     });
   };
@@ -80,7 +92,13 @@ export const useConnection = (roomId) => {
     peer.on('open', (peerId) => {
       const call = peer.call(newUserPeerId, stream);
       addPeerPair(peerId, newUserPeerId);
-      call.on('stream', (otherUserStream) => {});
+      call.on('stream', (otherUserStream) => {
+        createVideo(otherUserStream);
+      });
+    });
+    peer.on('error', (error) => {
+      console.log('Ошибка P2P соединения:', error);
+      peer.reconnect();
     });
   };
 
@@ -97,6 +115,14 @@ export const useConnection = (roomId) => {
     socketRef.current.disconnect();
   };
 
+  const createVideo = (stream) => {
+    const videoContainer = document.getElementById('video-container');
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.autoplay = true;
+    videoContainer.appendChild(video);
+  };
+
   // Запуск конференции
   const start = () => {
     navigator.mediaDevices
@@ -105,6 +131,7 @@ export const useConnection = (roomId) => {
         socketRef.current = io.connect('/');
         setMyId(socketRef.current.id);
         initializeSocketEvents(myStream);
+        createVideo(myStream);
       });
   };
 
