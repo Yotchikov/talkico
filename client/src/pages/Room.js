@@ -44,13 +44,21 @@ export const Room = withRouter((props) => {
   }, []);
 
   useEffect(() => {
-    console.log(connections);
+    const videoContainer = document.getElementById('video-container');
+    videoContainer.innerHTML = '';
+    for (let id in connections) {
+      const video = document.createElement('video');
+      video.srcObject = connections[id].otherUserStream;
+      video.autoplay = true;
+      videoContainer.appendChild(video);
+    }
   }, [connections]);
 
   return (
     <div className="m-3">
       <h3>Комната {roomId}</h3>
       <h4>Пользователь {myId}</h4>
+      <div id="video-container"></div>
       <button className="btn btn-success m-3" onClick={stopConference} disabled>
         Завершить конференцию
       </button>
