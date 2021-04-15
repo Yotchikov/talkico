@@ -42,7 +42,7 @@ async function start() {
             );
             return;
           }
-          socket.emit('join-success', rooms[roomId]);
+          socket.emit('join-success', socket.id, rooms[roomId]);
           rooms[roomId].push(socket.id);
           console.log(
             `Пользователь ${socket.id} успешно зашел зайти в комнату ${roomId}`
@@ -59,25 +59,27 @@ async function start() {
 
         // Поступает звонок от пользователя
         socket.on('start-call', (peerId, userId) => {
-          io.to(userId).emit('user-connected', peerId);
+          io.to(userId).emit('user-connected', socket.id, peerId);
           console.log(
             `Пользователь ${socket.id} звонит пользователю ${userId}`
           );
         });
 
         // Звонок заканчивается
-        socket.on('stop-call', (disconnectedUserId) => {
-          console.log(
-            `Пользователь ${socket.id} прерывает звонок ${disconnectedUserId}`
-          );
-          socket
-            .to(roomId)
-            .broadcast.emit('user-disconnected', disconnectedUserId);
-        });
+        // socket.on('stop-call', (disconnectedUserId) => {
+        //   console.log(
+        //     `Пользователь ${socket.id} прерывает звонок ${disconnectedUserId}`
+        //   );
+        //   socket
+        //     .to(roomId)
+        //     .broadcast.emit('user-disconnected', disconnectedUserId);
+        // });
 
         // Пользователь выходит из комнаты
         socket.on('disconnect', () => {
           rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);
+
+          socket.to(roomId).broadcast.emit('user-disconnected', socket.id);
           console.log(`Пользователь ${socket.id} вышел из комнаты ${roomId}`);
         });
       });
