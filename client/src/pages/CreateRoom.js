@@ -1,6 +1,5 @@
 import { withRouter } from 'react-router-dom';
 import { useHttp } from '../hooks/http.hook';
-// import { v4 as uuid } from 'uuid';
 
 export const CreateRoom = withRouter((props) => {
   const { loading, error, clearError, request } = useHttp();
