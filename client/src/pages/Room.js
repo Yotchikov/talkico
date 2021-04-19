@@ -10,7 +10,7 @@ import { FullRoom } from './FullRoom';
 export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { request } = useHttp();
-  const { start, connections, myId, leaveRoom, isFull } = useConnection(roomId);
+  const { start, connections, myId, myStream, leaveRoom, isFull } = useConnection(roomId);
   const [error, setError] = useState(null);
 
   const stopConference = async () => {
@@ -51,7 +51,7 @@ export const Room = withRouter((props) => {
       <h3>Комната {roomId}</h3>
       <h4>Пользователь {myId}</h4>
       <div id="video-container">
-        {<VideoContainer connections={connections} />}
+        {<VideoContainer myStream={myStream} connections={connections} />}
       </div>
       <button className="btn btn-success m-3" onClick={stopConference} disabled>
         Завершить конференцию

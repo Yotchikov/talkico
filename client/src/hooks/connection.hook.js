@@ -7,6 +7,7 @@ export const useConnection = (roomId) => {
   const [connections, setConnections] = useState({});
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
+  const [myStream, setMyStream] = useState(null);
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -129,11 +130,12 @@ export const useConnection = (roomId) => {
   const start = () => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
-      .then((myStream) => {
+      .then((stream) => {
+        setMyStream(stream);
         socketRef.current = io.connect('/');
-        initializeSocketEvents(myStream);
+        initializeSocketEvents(stream);
       });
   };
 
-  return { start, connections, isFull, myId, leaveRoom };
+  return { start, connections, isFull, myId, myStream, leaveRoom };
 };

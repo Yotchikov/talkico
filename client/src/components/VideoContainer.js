@@ -1,7 +1,7 @@
 import { Video } from './Video';
 
 export const VideoContainer = (props) => {
-  const { connections } = props;
+  const { myStream, connections } = props;
   const videoList = () => {
     const list = [];
     for (const id in connections) {
@@ -11,8 +11,9 @@ export const VideoContainer = (props) => {
   };
   return (
     <div>
+      <Video stream={myStream} />
       {videoList().map((element) => {
-        return <Video stream={element.otherUserStream}></Video>;
+        return <Video stream={element.otherUserStream} />;
       })}
     </div>
   );
