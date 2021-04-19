@@ -65,16 +65,6 @@ async function start() {
           );
         });
 
-        // Звонок заканчивается
-        // socket.on('stop-call', (disconnectedUserId) => {
-        //   console.log(
-        //     `Пользователь ${socket.id} прерывает звонок ${disconnectedUserId}`
-        //   );
-        //   socket
-        //     .to(roomId)
-        //     .broadcast.emit('user-disconnected', disconnectedUserId);
-        // });
-
         // Пользователь выходит из комнаты
         socket.on('disconnect', () => {
           rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);

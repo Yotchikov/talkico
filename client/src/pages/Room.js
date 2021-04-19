@@ -5,11 +5,12 @@ import { useHttp } from '../hooks/http.hook';
 import { withRouter } from 'react-router-dom';
 import { VideoContainer } from '../components/VideoContainer';
 import { ErrorPage } from './ErrorPage';
+import { FullRoom } from './FullRoom';
 
 export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { request } = useHttp();
-  const { start, connections, myId, leaveRoom } = useConnection(roomId);
+  const { start, connections, myId, leaveRoom, isFull } = useConnection(roomId);
   const [error, setError] = useState(null);
 
   const stopConference = async () => {
@@ -29,13 +30,17 @@ export const Room = withRouter((props) => {
 
   useEffect(async () => {
     try {
-      const data = await request('/api/room/join', 'POST', { roomId });
+      await request('/api/room/join', 'POST', { roomId });
       alert('Вы успешно зашли в комнату!');
       start();
     } catch (e) {
       setError(e);
     }
   }, []);
+
+  if (isFull) {
+    return <FullRoom roomId={roomId} />;
+  }
 
   if (error) {
     return <ErrorPage error={error} />;

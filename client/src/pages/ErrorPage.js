@@ -1,11 +1,5 @@
-import { useEffect } from 'react';
-
 export const ErrorPage = (props) => {
   const { error } = props;
-
-  useEffect(() => {
-    console.log(error);
-  }, []);
 
   return (
     <div className="d-flex align-items-end justify-content-center h-100 m-5">
@@ -21,7 +15,7 @@ export const ErrorPage = (props) => {
           Пожалуйста, обновите страницу или вернитесь на <a href="/">главную</a>
         </h5>
         <a
-          className="text-secondary"
+          className="link-secondary"
           data-bs-toggle="collapse"
           href="#errorCollapse"
           role="button"

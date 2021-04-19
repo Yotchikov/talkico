@@ -11,14 +11,18 @@ export const Navbar = () => {
   if (auth.token)
     return (
       <nav className="navbar navbar-light bg-light">
-        <span className="navbar-brand mb-0 h1">TALKICO</span>
-        <button
-          className="btn btn-outline-success"
-          type="button"
-          onClick={handleLogout}
-        >
-          Выйти
-        </button>
+        <div className="container-fluid">
+          <a href="/" className="navbar-brand mb-0 h1">
+            TALKICO
+          </a>
+          <button
+            className="btn btn-outline-success"
+            type="button"
+            onClick={handleLogout}
+          >
+            Выйти
+          </button>
+        </div>
       </nav>
     );
   return (
