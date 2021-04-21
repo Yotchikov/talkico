@@ -62,7 +62,10 @@ export const Room = withRouter((props) => {
         <canvas id="overlay"></canvas>
         {/*<VideoContainer myStream={myStream} connections={connections} />*/}
       </div>
-      <button className="btn btn-success m-3" onClick={stopConference} disabled>
+      <button
+        className="btn btn-success m-3"
+        onClick={() => console.log(document.getElementById('video').videoWidth)}
+      >
         Завершить конференцию
       </button>
       <button className="btn btn-success m-3" onClick={leaveConference}>

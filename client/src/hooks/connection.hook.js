@@ -140,24 +140,25 @@ export const useConnection = (roomId) => {
         const video = document.getElementById('video');
         video.srcObject = stream;
         video.autoplay = true;
+        
         video.addEventListener('playing', async () => {
           async function step() {
-            console.log(video.width, video.height);
+            console.log(video.videoWidth, video.videoHeight);
             const detectionWithLandmarks = await faceapi
               .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
               .withFaceLandmarks();
             const canvas = document.getElementById('overlay');
             console.log(canvas);
-            canvas.width = video.width;
-            canvas.height = video.height;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             if (detectionWithLandmarks)
               faceapi.draw.drawFaceLandmarks(
                 canvas,
                 detectionWithLandmarks.landmarks
               );
-            requestAnimationFrame(step);
+            setTimeout(() => step());
           }
-          requestAnimationFrame(step);
+          step();
         });
         initializeSocketEvents(stream);
       });
