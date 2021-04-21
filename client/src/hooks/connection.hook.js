@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import Peer from 'peerjs';
+import * as faceapi from 'face-api.js';
 
 export const useConnection = (roomId) => {
   const [myId, setMyId] = useState('');
@@ -127,12 +128,37 @@ export const useConnection = (roomId) => {
   };
 
   // Запуск конференции
-  const start = () => {
+  const start = async () => {
+    await faceapi.loadFaceLandmarkModel('/models');
+    await faceapi.loadTinyFaceDetectorModel('/models');
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         setMyStream(stream);
         socketRef.current = io.connect('/');
+        const videoContainer = document.getElementById('video-container');
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        video.autoplay = true;
+        video.addEventListener('playing', async () => {
+          async function step() {
+            console.log(video.width, video.height);
+            const detectionWithLandmarks = await faceapi
+              .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+              .withFaceLandmarks();
+            const canvas = document.getElementById('overlay');
+            console.log(canvas);
+            canvas.width = video.width;
+            canvas.height = video.height;
+            if (detectionWithLandmarks)
+              faceapi.draw.drawFaceLandmarks(
+                canvas,
+                detectionWithLandmarks.landmarks
+              );
+            requestAnimationFrame(step);
+          }
+          requestAnimationFrame(step);
+        });
         initializeSocketEvents(stream);
       });
   };
