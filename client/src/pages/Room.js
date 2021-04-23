@@ -58,8 +58,8 @@ export const Room = withRouter((props) => {
       <h3>Комната {roomId}</h3>
       <h4>Пользователь {myId}</h4>
       <div id="video-container">
+        <canvas id="overlay" style={{ position: 'absolute' }}></canvas>
         <video id="video" />
-        <canvas id="overlay"></canvas>
         {/*<VideoContainer myStream={myStream} connections={connections} />*/}
       </div>
       <button

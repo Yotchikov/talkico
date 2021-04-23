@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import Peer from 'peerjs';
-import * as faceapi from 'face-api.js';
+import { useFace } from './face.hook';
 
 export const useConnection = (roomId) => {
   const [myId, setMyId] = useState('');
@@ -9,6 +9,7 @@ export const useConnection = (roomId) => {
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
+  const { addAR } = useFace();
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -129,37 +130,23 @@ export const useConnection = (roomId) => {
 
   // Запуск конференции
   const start = async () => {
-    await faceapi.loadFaceLandmarkModel('/models');
-    await faceapi.loadTinyFaceDetectorModel('/models');
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
+      .then(async (stream) => {
         setMyStream(stream);
         socketRef.current = io.connect('/');
-        const videoContainer = document.getElementById('video-container');
+
         const video = document.getElementById('video');
+        const canvas = document.getElementById('overlay');
         video.srcObject = stream;
         video.autoplay = true;
-        
+
         video.addEventListener('playing', async () => {
-          async function step() {
-            console.log(video.videoWidth, video.videoHeight);
-            const detectionWithLandmarks = await faceapi
-              .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
-              .withFaceLandmarks();
-            const canvas = document.getElementById('overlay');
-            console.log(canvas);
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            if (detectionWithLandmarks)
-              faceapi.draw.drawFaceLandmarks(
-                canvas,
-                detectionWithLandmarks.landmarks
-              );
-            setTimeout(() => step());
-          }
-          step();
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          await addAR(video, canvas);
         });
+
         initializeSocketEvents(stream);
       });
   };
