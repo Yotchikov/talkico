@@ -64,6 +64,7 @@ export const useConnection = (roomId) => {
     });
 
     socketRef.current.on('join-success', (id, userIdList) => {
+      console.log('hey');
       setMyId(id);
       tryToConnectToOtherUsers(userIdList, stream);
     });
@@ -107,6 +108,7 @@ export const useConnection = (roomId) => {
     const peer = initializeNewPeer();
     peer.on('open', (peerId) => {
       const call = peer.call(newUserPeerId, stream);
+      console.log(call, newUserPeerId);
       addConnection(newUserSocketId, peerId, newUserPeerId);
       call.on('stream', (otherUserStream) => {
         addVideoStream(newUserSocketId, otherUserStream);
@@ -137,7 +139,9 @@ export const useConnection = (roomId) => {
         socketRef.current = io.connect('/');
 
         const video = document.getElementById('video');
+        video.style.transform = 'scale(-1, 1)';
         const canvas = document.getElementById('overlay');
+        canvas.style.transform = 'scale(-1, 1)';
         video.srcObject = stream;
         video.autoplay = true;
 
@@ -145,6 +149,8 @@ export const useConnection = (roomId) => {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
           await addAR(video, canvas);
+          setMyStream(canvas.captureStream(30));
+          console.log(myStream);
         });
 
         initializeSocketEvents(stream);

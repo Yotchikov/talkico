@@ -11,7 +11,6 @@ export const VideoContainer = (props) => {
   };
   return (
     <div>
-      <Video stream={myStream} />
       {videoList().map((element) => {
         return <Video stream={element.otherUserStream} />;
       })}
