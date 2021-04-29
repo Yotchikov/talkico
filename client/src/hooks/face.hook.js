@@ -1,6 +1,8 @@
 import * as faceapi from 'face-api.js';
+import { useState } from 'react';
 
 export const useFace = () => {
+  const [angle, setAngle] = useState(0);
   const addAR = async (videoElement, canvasElement) => {
     await faceapi.loadTinyFaceDetectorModel('/models');
     await faceapi.loadFaceLandmarkModel('/models');
@@ -8,6 +10,14 @@ export const useFace = () => {
     const width = videoElement.videoWidth;
     const height = videoElement.videoHeight;
     const ctx = canvasElement.getContext('2d');
+
+    const getAngle = (landmarks) => {
+      const point1 = landmarks.getLeftEyeBrow()[0];
+      const point2 = landmarks.getRightEyeBrow()[4];
+      return (
+        (Math.atan2(point2.y - point1.y, point2.x - point1.x) * 180) / Math.PI
+      );
+    };
 
     const drawCard = (landmarks) => {
       ctx.drawImage(videoElement, 0, 0);
@@ -53,13 +63,15 @@ export const useFace = () => {
         .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks();
       if (detectionWithLandmarks) {
-        drawCard(detectionWithLandmarks.landmarks);
+        ctx.clearRect(0, 0, width, height);
+        // drawCard(detectionWithLandmarks.landmarks);
         faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
+        setAngle(getAngle(detectionWithLandmarks.landmarks));
       }
       requestAnimationFrame(animate);
     };
 
     animate();
   };
-  return { addAR };
+  return { addAR, angle };
 };

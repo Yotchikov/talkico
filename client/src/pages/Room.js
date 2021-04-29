@@ -17,6 +17,7 @@ export const Room = withRouter((props) => {
     myStream,
     leaveRoom,
     isFull,
+    angle,
   } = useConnection(roomId);
   const [error, setError] = useState(null);
 
@@ -55,6 +56,7 @@ export const Room = withRouter((props) => {
 
   return (
     <div className="m-3">
+      <h3>{angle > 30 ? 'Налево' : angle < -30 ? 'Направо' : 'Посередине'}</h3>
       <h3>Комната {roomId}</h3>
       <div id="video-container">
         <canvas

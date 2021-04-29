@@ -9,7 +9,7 @@ export const useConnection = (roomId) => {
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
-  const { addAR } = useFace();
+  const { addAR, angle } = useFace();
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -148,7 +148,7 @@ export const useConnection = (roomId) => {
         video.addEventListener('playing', async () => {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
-          // await addAR(video, canvas);
+          await addAR(video, canvas);
           // setMyStream(canvas.captureStream(30));
           console.log(myStream);
         });
@@ -157,5 +157,5 @@ export const useConnection = (roomId) => {
       });
   };
 
-  return { start, connections, isFull, myId, myStream, leaveRoom };
+  return { start, connections, isFull, myId, myStream, leaveRoom, angle };
 };
