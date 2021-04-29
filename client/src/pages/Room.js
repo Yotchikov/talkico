@@ -56,7 +56,6 @@ export const Room = withRouter((props) => {
   return (
     <div className="m-3">
       <h3>Комната {roomId}</h3>
-      <h4>Пользователь {myId}</h4>
       <div id="video-container">
         <canvas
           id="overlay"

@@ -37,7 +37,6 @@ export const useConnection = (roomId) => {
   const addVideoStream = (socketId, stream) => {
     setConnections((prevConnections) => {
       if (prevConnections[socketId]) {
-        console.log('adding');
         const modifiedConnection = {
           ...prevConnections[socketId],
           otherUserStream: stream,
@@ -50,9 +49,11 @@ export const useConnection = (roomId) => {
 
   // Удаление связки peer'ов
   const deleteConnection = (otherUserSocketId) => {
-    let modifiedConnections = { ...connections };
-    delete modifiedConnections[otherUserSocketId];
-    setConnections(modifiedConnections);
+    setConnections((prevConnections) => {
+      let modifiedConnections = { ...prevConnections };
+      delete modifiedConnections[otherUserSocketId];
+      return modifiedConnections;
+    });
   };
 
   // Инициализация событий сокетов
@@ -108,7 +109,6 @@ export const useConnection = (roomId) => {
     const peer = initializeNewPeer();
     peer.on('open', (peerId) => {
       const call = peer.call(newUserPeerId, stream);
-      console.log(call, newUserPeerId);
       addConnection(newUserSocketId, peerId, newUserPeerId);
       call.on('stream', (otherUserStream) => {
         addVideoStream(newUserSocketId, otherUserStream);
@@ -139,17 +139,17 @@ export const useConnection = (roomId) => {
         socketRef.current = io.connect('/');
 
         const video = document.getElementById('video');
-        video.style.transform = 'scale(-1, 1)';
+        // video.style.transform = 'scale(-1, 1)';
         const canvas = document.getElementById('overlay');
-        canvas.style.transform = 'scale(-1, 1)';
+        // canvas.style.transform = 'scale(-1, 1)';
         video.srcObject = stream;
         video.autoplay = true;
 
         video.addEventListener('playing', async () => {
           canvas.width = video.videoWidth;
           canvas.height = video.videoHeight;
-          await addAR(video, canvas);
-          setMyStream(canvas.captureStream(30));
+          // await addAR(video, canvas);
+          // setMyStream(canvas.captureStream(30));
           console.log(myStream);
         });
 

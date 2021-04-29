@@ -13,7 +13,7 @@ export const Navbar = () => {
       <nav className="navbar navbar-light bg-light">
         <div className="container-fluid">
           <a href="/" className="navbar-brand mb-0 h1">
-            TALKICO
+            AR Conference
           </a>
           <button
             className="btn btn-outline-success"
@@ -27,7 +27,7 @@ export const Navbar = () => {
     );
   return (
     <nav className="navbar navbar-light bg-light">
-      <span className="navbar-brand mb-0 h1">TALKICO</span>
+      <span className="navbar-brand mb-0 h1">AR Conference</span>
     </nav>
   );
 };

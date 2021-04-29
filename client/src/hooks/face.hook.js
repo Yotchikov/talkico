@@ -54,6 +54,7 @@ export const useFace = () => {
         .withFaceLandmarks();
       if (detectionWithLandmarks) {
         drawCard(detectionWithLandmarks.landmarks);
+        faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
       }
       requestAnimationFrame(animate);
     };

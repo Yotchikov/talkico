@@ -10,7 +10,7 @@ export const VideoContainer = (props) => {
     return list;
   };
   return (
-    <div>
+    <div style={{ display: 'flex' }}>
       {videoList().map((element) => {
         return <Video stream={element.otherUserStream} />;
       })}
