@@ -17,7 +17,7 @@ export const Room = withRouter((props) => {
     myStream,
     leaveRoom,
     isFull,
-    angle,
+    startGame,
   } = useConnection(roomId);
   const [error, setError] = useState(null);
 
@@ -56,7 +56,6 @@ export const Room = withRouter((props) => {
 
   return (
     <div className="m-3">
-      <h3>{angle > 30 ? 'Налево' : angle < -30 ? 'Направо' : 'Посередине'}</h3>
       <h3>Комната {roomId}</h3>
       <div id="video-container">
         <canvas
@@ -66,11 +65,8 @@ export const Room = withRouter((props) => {
         <video id="video" />
         {<VideoContainer myStream={myStream} connections={connections} />}
       </div>
-      <button
-        className="btn btn-success m-3"
-        onClick={() => console.log(document.getElementById('video').videoWidth)}
-      >
-        Завершить конференцию
+      <button className="btn btn-success m-3" onClick={startGame}>
+        Начать игру
       </button>
       <button className="btn btn-success m-3" onClick={leaveConference}>
         Выйти из конференции

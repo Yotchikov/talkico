@@ -65,6 +65,22 @@ async function start() {
           );
         });
 
+        socket.on('start-game', () => {
+          console.log(`Игра в комнате ${roomId} началась`);
+          const activePlayers = [...rooms[roomId]];
+          let question = {};
+          io.to(activePlayers[0]).emit('new-question', question);
+          socket.on('new-answer', (answer) => {
+            console.log('user answered:', answer);
+            // if (answer) {
+            //   io.to(activePlayers[counter]).emit('new-question', question);
+            // } else {
+            //   counter = (counter + 1) % activePlayers.length;
+            //   io.to(activePlayers[counter]).emit('new-question', question);
+            // }
+          });
+        });
+
         // Пользователь выходит из комнаты
         socket.on('disconnect', () => {
           rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);

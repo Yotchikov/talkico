@@ -2,14 +2,16 @@ import * as faceapi from 'face-api.js';
 import { useState } from 'react';
 
 export const useFace = () => {
-  const [angle, setAngle] = useState(0);
-  const addAR = async (videoElement, canvasElement) => {
+  const addAR = async (videoElement, canvasElement, socket) => {
     await faceapi.loadTinyFaceDetectorModel('/models');
     await faceapi.loadFaceLandmarkModel('/models');
 
     const width = videoElement.videoWidth;
     const height = videoElement.videoHeight;
     const ctx = canvasElement.getContext('2d');
+    let startTime;
+    let currentTime;
+    let angle = 0;
 
     const getAngle = (landmarks) => {
       const point1 = landmarks.getLeftEyeBrow()[0];
@@ -66,12 +68,30 @@ export const useFace = () => {
         ctx.clearRect(0, 0, width, height);
         // drawCard(detectionWithLandmarks.landmarks);
         faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
-        setAngle(getAngle(detectionWithLandmarks.landmarks));
+        angle = getAngle(detectionWithLandmarks.landmarks);
       }
-      requestAnimationFrame(animate);
+      if (angle < 30 && angle > -30) {
+        console.log('middle');
+        startTime = new Date();
+      }
+      if (angle > 30) {
+        currentTime = new Date();
+        if (currentTime - startTime > 3000) {
+          console.log('left');
+          socket.emit('new-answer', 'left');
+        }
+      }
+      if (angle < -30) {
+        currentTime = new Date();
+        if (currentTime - startTime > 3000) {
+          console.log('right');
+          socket.emit('new-answer', 'right');
+        }
+      }
+      setTimeout(animate, 100);
     };
 
     animate();
   };
-  return { addAR, angle };
+  return { addAR };
 };
