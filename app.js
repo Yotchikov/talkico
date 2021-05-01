@@ -68,7 +68,10 @@ async function start() {
         socket.on('start-game', () => {
           console.log(`Игра в комнате ${roomId} началась`);
           const activePlayers = [...rooms[roomId]];
-          let question = {};
+          let question = {
+            text: 'От какой империи Россия унаследовала двуглавого Орла?',
+            correctAnswer: 'right',
+          };
           io.to(activePlayers[0]).emit('new-question', question);
           socket.on('new-answer', (answer) => {
             console.log('user answered:', answer);
