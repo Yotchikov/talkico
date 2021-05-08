@@ -9,8 +9,7 @@ export const useFace = () => {
     const width = videoElement.videoWidth;
     const height = videoElement.videoHeight;
     const ctx = canvasElement.getContext('2d');
-    let startTime;
-    let currentTime;
+    let startTime, currentTime, initTime;
     let angle = 0;
 
     const getAngle = (landmarks) => {
@@ -55,6 +54,7 @@ export const useFace = () => {
       ctx.translate(cardCenter.x, cardCenter.y);
       ctx.rotate(cardAngle);
       ctx.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
+      ctx.font = '48px montserrat';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = 'white';
@@ -63,18 +63,32 @@ export const useFace = () => {
     };
 
     const animate = async (question) => {
+      // Если игрок думает больше 10 секунд
+      // if (new Date() - initTime > 10000) {
+      //   socket.emit('new-answer', false);
+      //   ctx.clearRect(0, 0, width, height);
+      //   return;
+      // }
+
+      // Распознавание лица
       const detectionWithLandmarks = await faceapi
         .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks();
+
+      // Рендеринг карточки с вопросом и высчитывание угла наклона головы
       if (detectionWithLandmarks) {
         ctx.clearRect(0, 0, width, height);
         // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
         drawCard(detectionWithLandmarks.landmarks, question);
         angle = getAngle(detectionWithLandmarks.landmarks);
       }
+
+      // Если игрок не наклонил голову - обнулить время наклона
       if (angle < 30 && angle > -30) {
         startTime = new Date();
       }
+
+      // Игрок наклонил голову влево
       if (angle > 30) {
         currentTime = new Date();
         if (currentTime - startTime > 3000) {
@@ -84,6 +98,8 @@ export const useFace = () => {
           return;
         }
       }
+
+      // Игрок наклонил голову вправо
       if (angle < -30) {
         currentTime = new Date();
         if (currentTime - startTime > 3000) {
@@ -93,14 +109,19 @@ export const useFace = () => {
           return;
         }
       }
+
+      // Новый кадр анимации
       setTimeout(async () => {
         await animate(question);
       }, 100);
     };
 
+    // Поступил новый вопрос от сервера
     socket.on('new-question', async (question) => {
+      initTime = new Date();
       await animate(question);
     });
   };
+
   return { addAR };
 };

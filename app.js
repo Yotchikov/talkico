@@ -9,7 +9,9 @@ const io = require('socket.io')(server);
 const PORT = config.get('port') || 5000;
 
 const rooms = {};
+const gameSessions = {};
 const MAX_MEMBERS = config.get('maxMembers') || 4;
+const questions = config.get('questions');
 
 app.use(express.json({ extended: true }));
 
@@ -42,13 +44,17 @@ async function start() {
             );
             return;
           }
-          socket.emit('join-success', socket.id, rooms[roomId]);
-          rooms[roomId].push(socket.id);
+          socket.emit(
+            'join-success',
+            socket.id,
+            rooms[roomId].map((user) => user.id)
+          );
+          rooms[roomId].push({ id: socket.id, points: 0 });
           console.log(
             `Пользователь ${socket.id} успешно зашел зайти в комнату ${roomId}`
           );
         } else {
-          rooms[roomId] = [socket.id];
+          rooms[roomId] = [{ id: socket.id, points: 0 }];
           console.log(
             `Пользователь ${socket.id} стал первым участником комнаты ${roomId}`
           );
@@ -65,28 +71,80 @@ async function start() {
           );
         });
 
+        // Начинается новая игра
         socket.on('start-game', () => {
+          // Если в комнате недостаточно игроков для начала игры - начать игру невозможно
+          if (rooms[roomId].length <= 1) {
+            io.to(socket.id).emit('not-enough-players');
+          }
+
           console.log(`Игра в комнате ${roomId} началась`);
-          const activePlayers = [...rooms[roomId]];
-          let question = {
-            text: 'От какой империи Россия унаследовала двуглавого Орла?',
-            correctAnswer: 'right',
+          gameSessions[roomId] = {
+            playersCounter: 0,
+            questionsCounter: 0,
+            winStreakCounter: 0,
           };
-          io.to(activePlayers[0]).emit('new-question', question);
-          socket.on('new-answer', (answer) => {
-            console.log('user answered:', answer);
-            // if (answer) {
-            //   io.to(activePlayers[counter]).emit('new-question', question);
-            // } else {
-            //   counter = (counter + 1) % activePlayers.length;
-            //   io.to(activePlayers[counter]).emit('new-question', question);
-            // }
-          });
+
+          // Задаем вопрос 1-му игроку
+          io.to(rooms[roomId][0].id).emit('new-question', questions[0]);
+          console.log(`Отвечает игрок ${rooms[roomId][0].id}`);
+        });
+
+        // Игрок ответил на вопрос
+        socket.on('new-answer', (answer) => {
+          if (answer) {
+            console.log(`Игрок ${socket.id} ответил правильно`);
+            rooms[roomId][gameSessions[roomId].playersCounter].points++;
+            gameSessions[roomId].winStreak++;
+            if (gameSessions[roomId].winStreak == 5) {
+              rooms[roomId][gameSessions[roomId].playersCounter].points += 5;
+              if (
+                rooms[roomId][gameSessions[roomId].playersCounter].points >= 20
+              ) {
+                socket
+                  .to(roomId)
+                  .emit(
+                    'win',
+                    rooms[roomId][gameSessions[roomId].playersCounter].id
+                  );
+              }
+              gameSessions[roomId].playersCounter =
+                (gameSessions[roomId].playersCounter + 1) %
+                rooms[roomId].length;
+              io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
+                'new-question',
+                questions[gameSessions[roomId].questionsCounter]
+              );
+              gameSessions[roomId].questionsCounter++;
+            } else {
+              gameSessions[roomId].winStreak = 0;
+              io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
+                'new-question',
+                questions[gameSessions[roomId].questionsCounter]
+              );
+              gameSessions[roomId].questionsCounter++;
+            }
+            socket.to(roomId).emit('points-changed', rooms[roomId]);
+          } else {
+            console.log(`Игрок ${socket.id} ответил неправильно`);
+            gameSessions[roomId].playersCounter =
+              (gameSessions[roomId].playersCounter + 1) % rooms[roomId].length;
+            io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
+              'new-question',
+              questions[gameSessions[roomId].questionsCounter]
+            );
+            gameSessions[roomId].questionsCounter++;
+          }
+          console.log(
+            `Отвечает игрок ${
+              rooms[roomId][gameSessions[roomId].playersCounter].id
+            }`
+          );
         });
 
         // Пользователь выходит из комнаты
         socket.on('disconnect', () => {
-          rooms[roomId] = rooms[roomId].filter((id) => id !== socket.id);
+          rooms[roomId] = rooms[roomId].filter((user) => user.id !== socket.id);
 
           socket.to(roomId).broadcast.emit('user-disconnected', socket.id);
           console.log(`Пользователь ${socket.id} вышел из комнаты ${roomId}`);

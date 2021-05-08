@@ -2,5 +2,43 @@
   "port": 5000,
   "mongoUri": "mongodb+srv://admin:wJUKw6mo@cluster0.9oi6p.mongodb.net/app?retryWrites=true&w=majority",
   "jwtSecret": "iloveyou",
-  "maxMembers": "4"
+  "maxMembers": "4",
+  "questions": [
+    {
+      "text": "От какой империи Россия унаследовала двуглавого орла? <",
+      "leftAnswer": "Византийская",
+      "rightAnswer": "Османская",
+      "correctAnswer": "left"
+    },
+    {
+      "text": "В каком году был основан Санкт-Петербург? <",
+      "leftAnswer": "1917",
+      "rightAnswer": "1703",
+      "correctAnswer": "left"
+    },
+    {
+      "text": "В верховьях какой реки расположен Смоленск? >",
+      "leftAnswer": "Волга",
+      "rightAnswer": "Днепр",
+      "correctAnswer": "right"
+    },
+    {
+      "text": "Какое геометрическое тело получается вращением круга вокруг своего диаметра? <",
+      "leftAnswer": "Шар",
+      "rightAnswer": "Конус",
+      "correctAnswer": "left"
+    },
+    {
+      "text": "Что Пифагор называл «царём приправ»? >",
+      "leftAnswer": "Черный перец",
+      "rightAnswer": "Чеснок",
+      "correctAnswer": "right"
+    },
+    {
+      "text": ">",
+      "leftAnswer": "a",
+      "rightAnswer": "b",
+      "correctAnswer": "right"
+    }
+  ]
 }

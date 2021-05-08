@@ -9,7 +9,7 @@ export const useConnection = (roomId) => {
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
-  const { addAR, answer } = useFace();
+  const { addAR } = useFace();
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -65,7 +65,6 @@ export const useConnection = (roomId) => {
     });
 
     socketRef.current.on('join-success', (id, userIdList) => {
-      console.log('hey');
       setMyId(id);
       tryToConnectToOtherUsers(userIdList, stream);
     });
@@ -130,8 +129,11 @@ export const useConnection = (roomId) => {
     socketRef.current.disconnect();
   };
 
+  // Начать игру
   const startGame = () => {
     socketRef.current.emit('start-game');
+    socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
+    socketRef.current.on('points-changed', (players) => console.log(players));
   };
 
   // Запуск конференции
