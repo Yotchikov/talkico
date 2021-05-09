@@ -145,9 +145,9 @@ export const useConnection = (roomId) => {
         socketRef.current = io.connect('/');
 
         const video = document.getElementById('video');
-        // video.style.transform = 'scale(-1, 1)';
+        video.style.transform = 'scale(-1, 1)';
         const canvas = document.getElementById('overlay');
-        // canvas.style.transform = 'scale(-1, 1)';
+        canvas.style.transform = 'scale(-1, 1)';
         video.srcObject = stream;
         video.autoplay = true;
 

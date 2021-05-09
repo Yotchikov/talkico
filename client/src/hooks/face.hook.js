@@ -20,6 +20,29 @@ export const useFace = () => {
       );
     };
 
+    const wrapText = (text, x, y, maxWidth, lineHeight) => {
+      ctx.font = Math.floor(lineHeight * 0.75) + 'px montserrat';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = 'white';
+      const words = text.split(' ');
+      let line = '';
+
+      for (let i = 0; i < words.length; ++i) {
+        const testLine = line + words[i] + ' ';
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth) {
+          ctx.fillText(line, x, y, maxWidth, lineHeight);
+          line = words[i] + ' ';
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, 0, y, maxWidth, lineHeight);
+    };
+
     const drawCard = (landmarks, question) => {
       const { text, leftAnswer, rightAnswer } = question;
 
@@ -54,11 +77,16 @@ export const useFace = () => {
       ctx.translate(cardCenter.x, cardCenter.y);
       ctx.rotate(cardAngle);
       ctx.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
-      ctx.font = '48px montserrat';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'white';
-      ctx.fillText(text, 0, 0, cardWidth, cardHeight);
+      ctx.fillRect(0, 0, 10, 10);
+      ctx.fillRect(-cardWidth / 2, -cardHeight / 2, 10, 10);
+      ctx.fillRect(0, 0, 10, 10);
+      wrapText(
+        text,
+        0,
+        -cardHeight * 0.4,
+        cardWidth * 0.8,
+        Math.floor(cardHeight / 5)
+      );
       ctx.restore();
     };
 

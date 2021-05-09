@@ -94,10 +94,17 @@ async function start() {
         socket.on('new-answer', (answer) => {
           if (answer) {
             console.log(`Игрок ${socket.id} ответил правильно`);
+
+            // Увеличивем количество очков игрока и количество побед подряд
             rooms[roomId][gameSessions[roomId].playersCounter].points++;
             gameSessions[roomId].winStreak++;
+
+            // Если игрок сделал 5 побед подряд
             if (gameSessions[roomId].winStreak == 5) {
+              // Начисление бонуса за винстрик
               rooms[roomId][gameSessions[roomId].playersCounter].points += 5;
+
+              // Если кол-во очков больше 20 - игра окончена
               if (
                 rooms[roomId][gameSessions[roomId].playersCounter].points >= 20
               ) {
@@ -107,33 +114,36 @@ async function start() {
                     'win',
                     rooms[roomId][gameSessions[roomId].playersCounter].id
                   );
+              } else {
+                // Передача хода следующему игроку
+                gameSessions[roomId].playersCounter =
+                  (gameSessions[roomId].playersCounter + 1) %
+                  rooms[roomId].length;
+                io.to(
+                  rooms[roomId][gameSessions[roomId].playersCounter].id
+                ).emit(
+                  'new-question',
+                  questions[gameSessions[roomId].questionsCounter++]
+                );
               }
-              gameSessions[roomId].playersCounter =
-                (gameSessions[roomId].playersCounter + 1) %
-                rooms[roomId].length;
-              io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
-                'new-question',
-                questions[gameSessions[roomId].questionsCounter]
-              );
-              gameSessions[roomId].questionsCounter++;
             } else {
-              gameSessions[roomId].winStreak = 0;
+              // Задается еще один вопрос
               io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
                 'new-question',
-                questions[gameSessions[roomId].questionsCounter]
+                questions[gameSessions[roomId].questionsCounter++]
               );
-              gameSessions[roomId].questionsCounter++;
             }
             socket.to(roomId).emit('points-changed', rooms[roomId]);
           } else {
             console.log(`Игрок ${socket.id} ответил неправильно`);
+
+            // Ход передается следующему игроку
             gameSessions[roomId].playersCounter =
               (gameSessions[roomId].playersCounter + 1) % rooms[roomId].length;
             io.to(rooms[roomId][gameSessions[roomId].playersCounter].id).emit(
               'new-question',
-              questions[gameSessions[roomId].questionsCounter]
+              questions[gameSessions[roomId].questionsCounter++]
             );
-            gameSessions[roomId].questionsCounter++;
           }
           console.log(
             `Отвечает игрок ${
