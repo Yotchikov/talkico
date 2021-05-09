@@ -20,45 +20,16 @@ export const useFace = () => {
       );
     };
 
-    const wrapText = (text, x, y, maxWidth, lineHeight) => {
-      ctx.font = Math.floor(lineHeight * 0.75) + 'px montserrat';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'white';
-      const words = text.split(' ');
-      let line = '';
-
-      for (let i = 0; i < words.length; ++i) {
-        const testLine = line + words[i] + ' ';
-        const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-        if (testWidth > maxWidth) {
-          ctx.fillText(line, x, y, maxWidth, lineHeight);
-          line = words[i] + ' ';
-          y += lineHeight;
-        } else {
-          line = testLine;
-        }
-      }
-      ctx.fillText(line, 0, y, maxWidth, lineHeight);
-    };
-
-    const drawCard = (landmarks, question) => {
-      const { text, leftAnswer, rightAnswer } = question;
-
+    const drawCard = (landmarks, questionImg) => {
       ctx.drawImage(videoElement, 0, 0);
       const leftEyeBrow = landmarks.getLeftEyeBrow();
       const rightEyeBrow = landmarks.getRightEyeBrow();
-      const cardHeight =
-        Math.hypot(
-          leftEyeBrow[4].x - leftEyeBrow[0].x,
-          leftEyeBrow[4].y - leftEyeBrow[0].y
-        ) * 2;
       const cardWidth =
         Math.hypot(
           rightEyeBrow[4].x - leftEyeBrow[0].x,
           rightEyeBrow[4].y - leftEyeBrow[0].y
         ) * 1.5;
+      const cardHeight = questionImg.height * (cardWidth / questionImg.width);
       const cardAngle = Math.atan2(
         rightEyeBrow[4].y - leftEyeBrow[0].y,
         rightEyeBrow[4].x - leftEyeBrow[0].x
@@ -69,28 +40,23 @@ export const useFace = () => {
           Math.min(rightEyeBrow[2].y, leftEyeBrow[2].y) +
           (Math.max(rightEyeBrow[2].y, leftEyeBrow[2].y) -
             Math.min(rightEyeBrow[2].y, leftEyeBrow[2].y)) /
-            2 -
-          cardHeight,
+            2,
       };
       ctx.save();
-      ctx.clearRect(0, 0, width, height);
       ctx.translate(cardCenter.x, cardCenter.y);
       ctx.rotate(cardAngle);
-      ctx.fillRect(-cardWidth / 2, -cardHeight / 2, cardWidth, cardHeight);
-      ctx.fillRect(0, 0, 10, 10);
-      ctx.fillRect(-cardWidth / 2, -cardHeight / 2, 10, 10);
-      ctx.fillRect(0, 0, 10, 10);
-      wrapText(
-        text,
-        0,
-        -cardHeight * 0.4,
-        cardWidth * 0.8,
-        Math.floor(cardHeight / 5)
+      ctx.scale(-1, 1);
+      ctx.drawImage(
+        questionImg,
+        -cardWidth / 2,
+        -cardHeight * 1.5,
+        cardWidth,
+        cardHeight
       );
       ctx.restore();
     };
 
-    const animate = async (question) => {
+    const animate = async (question, questionImg) => {
       // Если игрок думает больше 10 секунд
       // if (new Date() - initTime > 10000) {
       //   socket.emit('new-answer', false);
@@ -107,7 +73,7 @@ export const useFace = () => {
       if (detectionWithLandmarks) {
         ctx.clearRect(0, 0, width, height);
         // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
-        drawCard(detectionWithLandmarks.landmarks, question);
+        drawCard(detectionWithLandmarks.landmarks, questionImg);
         angle = getAngle(detectionWithLandmarks.landmarks);
       }
 
@@ -140,14 +106,18 @@ export const useFace = () => {
 
       // Новый кадр анимации
       setTimeout(async () => {
-        await animate(question);
+        await animate(question, questionImg);
       }, 100);
     };
 
     // Поступил новый вопрос от сервера
     socket.on('new-question', async (question) => {
       initTime = new Date();
-      await animate(question);
+      const questionImg = new Image();
+      questionImg.src =
+        'https://i.ibb.co/jbhbwfb/text2image-J5832538-20210509-220145.png';
+      questionImg.style.transform = 'scale(-1, 1)';
+      await animate(question, questionImg);
     });
   };
 
