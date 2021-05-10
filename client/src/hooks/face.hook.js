@@ -20,8 +20,9 @@ export const useFace = () => {
       );
     };
 
-    const drawCard = (landmarks, questionImg) => {
-      ctx.drawImage(videoElement, 0, 0);
+    const drawCard = (landmarks, images) => {
+      // ctx.drawImage(videoElement, 0, 0);
+      const { question, leftAnswer, rightAnswer } = images;
       const leftEyeBrow = landmarks.getLeftEyeBrow();
       const rightEyeBrow = landmarks.getRightEyeBrow();
       const cardWidth =
@@ -29,11 +30,12 @@ export const useFace = () => {
           rightEyeBrow[4].x - leftEyeBrow[0].x,
           rightEyeBrow[4].y - leftEyeBrow[0].y
         ) * 1.5;
-      const cardHeight = questionImg.height * (cardWidth / questionImg.width);
+      const cardHeight = question.height * (cardWidth / question.width);
       const cardAngle = Math.atan2(
         rightEyeBrow[4].y - leftEyeBrow[0].y,
         rightEyeBrow[4].x - leftEyeBrow[0].x
       );
+      const cardAngleDegrees = (cardAngle * 180) / Math.PI;
       const cardCenter = {
         x: rightEyeBrow[4].x - (rightEyeBrow[4].x - leftEyeBrow[0].x) / 2,
         y:
@@ -47,16 +49,37 @@ export const useFace = () => {
       ctx.rotate(cardAngle);
       ctx.scale(-1, 1);
       ctx.drawImage(
-        questionImg,
+        question,
         -cardWidth / 2,
         -cardHeight * 1.5,
         cardWidth,
         cardHeight
       );
+      ctx.translate(-cardWidth * 0.9, -cardHeight * 0.5);
+      ctx.rotate(-Math.PI / 8);
+      ctx.globalAlpha = cardAngleDegrees < -30 ? 1 - cardAngleDegrees / -45 : 1;
+      ctx.drawImage(
+        leftAnswer,
+        -cardWidth / 3,
+        -cardHeight / 3,
+        cardWidth / 1.5,
+        cardHeight / 1.5
+      );
+      ctx.rotate(Math.PI / 8);
+      ctx.translate(cardWidth * 1.8, 0);
+      ctx.rotate(Math.PI / 8);
+      ctx.globalAlpha = cardAngleDegrees > 30 ? 1 - cardAngleDegrees / 45 : 1;
+      ctx.drawImage(
+        rightAnswer,
+        -cardWidth / 3,
+        -cardHeight / 3,
+        cardWidth / 1.5,
+        cardHeight / 1.5
+      );
       ctx.restore();
     };
 
-    const animate = async (question, questionImg) => {
+    const animate = async (question, images) => {
       // Если игрок думает больше 10 секунд
       // if (new Date() - initTime > 10000) {
       //   socket.emit('new-answer', false);
@@ -73,7 +96,7 @@ export const useFace = () => {
       if (detectionWithLandmarks) {
         ctx.clearRect(0, 0, width, height);
         // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
-        drawCard(detectionWithLandmarks.landmarks, questionImg);
+        drawCard(detectionWithLandmarks.landmarks, images);
         angle = getAngle(detectionWithLandmarks.landmarks);
       }
 
@@ -106,18 +129,24 @@ export const useFace = () => {
 
       // Новый кадр анимации
       setTimeout(async () => {
-        await animate(question, questionImg);
+        await animate(question, images);
       }, 100);
     };
 
     // Поступил новый вопрос от сервера
     socket.on('new-question', async (question) => {
       initTime = new Date();
-      const questionImg = new Image();
-      questionImg.src =
+      const images = {};
+      images.question = new Image();
+      images.question.src =
         'https://i.ibb.co/jbhbwfb/text2image-J5832538-20210509-220145.png';
-      questionImg.style.transform = 'scale(-1, 1)';
-      await animate(question, questionImg);
+      images.leftAnswer = new Image();
+      images.leftAnswer.src =
+        'https://i.ibb.co/tKS1Z69/text2image-T9826036-20210509-233135.png';
+      images.rightAnswer = new Image();
+      images.rightAnswer.src =
+        'https://i.ibb.co/48P7kQs/text2image-A4808767-20210509-234502.png';
+      await animate(question, images);
     });
   };
 
