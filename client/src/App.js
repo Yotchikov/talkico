@@ -10,6 +10,8 @@ function App() {
   const isAuthenticated = !!token;
   const routes = useRoutes(isAuthenticated);
 
+  document.body.style = 'background: #F0F0F0;';
+
   if (!ready) {
     return <Loading />;
   }

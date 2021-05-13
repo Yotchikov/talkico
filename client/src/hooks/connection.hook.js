@@ -9,6 +9,7 @@ export const useConnection = (roomId) => {
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
+  const [myPoints, setMyPoints] = useState(0);
   const { addAR } = useFace();
 
   // Инициализация нового peer'a
@@ -28,6 +29,7 @@ export const useConnection = (roomId) => {
           myPeerId,
           otherUserPeerId,
           otherUserStream: null,
+          points: 0,
         },
       };
     });
@@ -56,6 +58,16 @@ export const useConnection = (roomId) => {
     });
   };
 
+  const addPoints = (socketId, points) => {
+    setConnections((prevConnections) => {
+      if (prevConnections[socketId]) {
+        let modifiedConnection = { ...prevConnections[socketId], points };
+        return { ...prevConnections, [socketId]: modifiedConnection };
+      }
+      return prevConnections;
+    });
+  };
+
   // Инициализация событий сокетов
   const initializeSocketEvents = (stream) => {
     socketRef.current.emit('join-room', roomId);
@@ -75,6 +87,14 @@ export const useConnection = (roomId) => {
 
     socketRef.current.on('user-disconnected', (disconnectedUserId) => {
       disconnectFromUser(disconnectedUserId);
+    });
+
+    socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
+
+    socketRef.current.on('my-points-changed', (points) => setMyPoints(points));
+
+    socketRef.current.on('points-changed', (socketId, points) => {
+      addPoints(socketId, points);
     });
 
     socketRef.current.on('error', (error) => {
@@ -132,8 +152,6 @@ export const useConnection = (roomId) => {
   // Начать игру
   const startGame = () => {
     socketRef.current.emit('start-game');
-    socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
-    socketRef.current.on('points-changed', (players) => console.log(players));
   };
 
   // Запуск конференции
@@ -145,15 +163,15 @@ export const useConnection = (roomId) => {
         socketRef.current = io.connect('/');
 
         const video = document.getElementById('video');
-        video.style.transform = 'scale(-1, 1)';
         const canvas = document.getElementById('overlay');
+        video.style.transform = 'scale(-1, 1)';
         canvas.style.transform = 'scale(-1, 1)';
         video.srcObject = stream;
         video.autoplay = true;
 
         video.addEventListener('playing', async () => {
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
+          canvas.width = video.clientWidth;
+          canvas.height = video.clientHeight;
           await addAR(video, canvas, socketRef.current);
           // setMyStream(canvas.captureStream(30));
           console.log(myStream);
@@ -163,5 +181,14 @@ export const useConnection = (roomId) => {
       });
   };
 
-  return { start, connections, isFull, myId, myStream, leaveRoom, startGame };
+  return {
+    start,
+    connections,
+    isFull,
+    myId,
+    myStream,
+    leaveRoom,
+    startGame,
+    myPoints,
+  };
 };

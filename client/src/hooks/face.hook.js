@@ -6,8 +6,9 @@ export const useFace = () => {
     await faceapi.loadTinyFaceDetectorModel('/models');
     await faceapi.loadFaceLandmarkModel('/models');
 
-    const width = videoElement.videoWidth;
-    const height = videoElement.videoHeight;
+    // let width, height;
+    const width = videoElement.clientWidth;
+    const height = videoElement.clientHeight;
     const ctx = canvasElement.getContext('2d');
     let startTime, currentTime, initTime;
     let angle = 0;
@@ -57,7 +58,7 @@ export const useFace = () => {
       );
       ctx.translate(-cardWidth * 0.9, -cardHeight * 0.5);
       ctx.rotate(-Math.PI / 8);
-      ctx.globalAlpha = cardAngleDegrees < -30 ? 1 - cardAngleDegrees / -45 : 1;
+      ctx.globalAlpha = cardAngleDegrees < -15 ? 1 - cardAngleDegrees / -45 : 1;
       ctx.drawImage(
         leftAnswer,
         -cardWidth / 3,
@@ -68,7 +69,7 @@ export const useFace = () => {
       ctx.rotate(Math.PI / 8);
       ctx.translate(cardWidth * 1.8, 0);
       ctx.rotate(Math.PI / 8);
-      ctx.globalAlpha = cardAngleDegrees > 30 ? 1 - cardAngleDegrees / 45 : 1;
+      ctx.globalAlpha = cardAngleDegrees > 15 ? 1 - cardAngleDegrees / 45 : 1;
       ctx.drawImage(
         rightAnswer,
         -cardWidth / 3,
@@ -87,15 +88,20 @@ export const useFace = () => {
       //   return;
       // }
 
+      const videoCanvas = document.createElement('canvas');
+      videoCanvas.width = videoElement.clientWidth;
+      videoCanvas.height = videoElement.clientHeight;
+      videoCanvas.getContext('2d').drawImage(videoElement, 0, 0, width, height);
+
       // Распознавание лица
       const detectionWithLandmarks = await faceapi
-        .detectSingleFace(videoElement, new faceapi.TinyFaceDetectorOptions())
+        .detectSingleFace(videoCanvas, new faceapi.TinyFaceDetectorOptions())
         .withFaceLandmarks();
 
       // Рендеринг карточки с вопросом и высчитывание угла наклона головы
       if (detectionWithLandmarks) {
         ctx.clearRect(0, 0, width, height);
-        // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
+        faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
         drawCard(detectionWithLandmarks.landmarks, images);
         angle = getAngle(detectionWithLandmarks.landmarks);
       }
@@ -138,14 +144,11 @@ export const useFace = () => {
       initTime = new Date();
       const images = {};
       images.question = new Image();
-      images.question.src =
-        'https://i.ibb.co/jbhbwfb/text2image-J5832538-20210509-220145.png';
+      images.question.src = question.text;
       images.leftAnswer = new Image();
-      images.leftAnswer.src =
-        'https://i.ibb.co/tKS1Z69/text2image-T9826036-20210509-233135.png';
+      images.leftAnswer.src = question.leftAnswer;
       images.rightAnswer = new Image();
-      images.rightAnswer.src =
-        'https://i.ibb.co/48P7kQs/text2image-A4808767-20210509-234502.png';
+      images.rightAnswer.src = question.rightAnswer;
       await animate(question, images);
     });
   };

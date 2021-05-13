@@ -54,6 +54,7 @@ async function start() {
             `Пользователь ${socket.id} успешно зашел зайти в комнату ${roomId}`
           );
         } else {
+          socket.emit('join-success', socket.id, []);
           rooms[roomId] = [{ id: socket.id, points: 0 }];
           console.log(
             `Пользователь ${socket.id} стал первым участником комнаты ${roomId}`
@@ -133,7 +134,17 @@ async function start() {
                 questions[gameSessions[roomId].questionsCounter++]
               );
             }
-            socket.to(roomId).emit('points-changed', rooms[roomId]);
+            socket.emit(
+              'my-points-changed',
+              rooms[roomId][gameSessions[roomId].playersCounter].points
+            );
+            socket
+              .to(roomId)
+              .broadcast.emit(
+                'points-changed',
+                socket.id,
+                rooms[roomId][gameSessions[roomId].playersCounter].points
+              );
           } else {
             console.log(`Игрок ${socket.id} ответил неправильно`);
 

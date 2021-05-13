@@ -11,5 +11,15 @@ body {
   padding: 2rem 1rem;
   margin-bottom: 2rem;
   background-color: #e9ecef;
-  border-radius: .3rem;
+  border-radius: 0.3rem;
+}
+
+.styled-video {
+  border-radius: 10px;
+  transform: scale(-1, 1);
+}
+
+.video-box {
+  display: flex;
+
 }

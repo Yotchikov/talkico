@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useConnection } from '../hooks/connection.hook';
 import { useHttp } from '../hooks/http.hook';
@@ -13,11 +13,12 @@ export const Room = withRouter((props) => {
   const {
     start,
     connections,
-    myId,
+    myPoints,
     myStream,
     leaveRoom,
     isFull,
     startGame,
+    myId,
   } = useConnection(roomId);
   const [error, setError] = useState(null);
 
@@ -57,13 +58,9 @@ export const Room = withRouter((props) => {
   return (
     <div className="m-3">
       <h3>Комната {roomId}</h3>
+      <h3>Игрок {myId}</h3>
       <div id="video-container">
-        <canvas
-          id="overlay"
-          style={{ position: 'absolute', zIndex: '100' }}
-        ></canvas>
-        <video id="video" />
-        {<VideoContainer myStream={myStream} connections={connections} />}
+        {<VideoContainer myPoints={myPoints} connections={connections} />}
       </div>
       <button className="btn btn-success m-3" onClick={startGame}>
         Начать игру

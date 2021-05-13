@@ -7,5 +7,13 @@ export const Video = (props) => {
   if (stream) {
     userVideo.current.srcObject = stream;
   }
-  return <video playsInline muted ref={userVideo} autoPlay></video>;
+  return (
+    <video
+      className="card-img-top"
+      playsInline
+      muted
+      ref={userVideo}
+      autoPlay
+    ></video>
+  );
 };
