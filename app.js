@@ -130,6 +130,16 @@ async function start() {
                     questions[gameSessions[roomId].questionsCounter++]
                   );
               }
+            } else if (
+              rooms[roomId][gameSessions[roomId].playersCounter].points >= 2
+            ) {
+              // Если кол-во очков больше 20 - игра окончена
+              io.sockets
+                .in(roomId)
+                .emit(
+                  'win',
+                  rooms[roomId][gameSessions[roomId].playersCounter].id
+                );
             } else {
               // Задается еще один вопрос
               io.sockets
