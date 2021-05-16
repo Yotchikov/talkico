@@ -6,6 +6,7 @@ import { useFace } from './face.hook';
 export const useConnection = (roomId) => {
   const [myId, setMyId] = useState('');
   const [connections, setConnections] = useState({});
+  const [answeringUserId, setAnsweringUserId] = useState('');
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
@@ -173,11 +174,8 @@ export const useConnection = (roomId) => {
           canvas.width = video.clientWidth;
           canvas.height = video.clientHeight;
           await addAR(video, canvas, socketRef.current);
-          // setMyStream(canvas.captureStream(30));
-          console.log(myStream);
+          initializeSocketEvents(stream);
         });
-
-        initializeSocketEvents(stream);
       });
   };
 

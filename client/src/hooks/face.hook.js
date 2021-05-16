@@ -6,6 +6,9 @@ export const useFace = () => {
     await faceapi.loadTinyFaceDetectorModel('/models');
     await faceapi.loadFaceLandmarkModel('/models');
 
+    const vidos = document.getElementById('vidos');
+    vidos.autoPlay = true;
+
     // let width, height;
     const width = videoElement.clientWidth;
     const height = videoElement.clientHeight;
@@ -101,9 +104,10 @@ export const useFace = () => {
       // Рендеринг карточки с вопросом и высчитывание угла наклона головы
       if (detectionWithLandmarks) {
         ctx.clearRect(0, 0, width, height);
-        faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
+        // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
         drawCard(detectionWithLandmarks.landmarks, images);
         angle = getAngle(detectionWithLandmarks.landmarks);
+        // vidos.srcObject = canvasElement.captureStream();
       }
 
       // Если игрок не наклонил голову - обнулить время наклона
@@ -134,9 +138,9 @@ export const useFace = () => {
       }
 
       // Новый кадр анимации
-      setTimeout(async () => {
+      requestAnimationFrame(async () => {
         await animate(question, images);
-      }, 100);
+      });
     };
 
     // Поступил новый вопрос от сервера

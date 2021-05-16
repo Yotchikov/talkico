@@ -68,6 +68,7 @@ export const Room = withRouter((props) => {
       <button className="btn btn-success m-3" onClick={leaveConference}>
         Выйти из конференции
       </button>
+      <video id="vidos" playsInline autoPlay />
     </div>
   );
 });
