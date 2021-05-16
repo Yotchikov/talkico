@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useConnection } from '../hooks/connection.hook';
 import { useHttp } from '../hooks/http.hook';
@@ -10,7 +10,16 @@ import { FullRoom } from './FullRoom';
 export const Room = withRouter((props) => {
   const roomId = useParams().id;
   const { request } = useHttp();
-  const { start, connections, myId, myStream, leaveRoom, isFull } = useConnection(roomId);
+  const {
+    start,
+    connections,
+    myPoints,
+    myStream,
+    leaveRoom,
+    isFull,
+    startGame,
+    myId,
+  } = useConnection(roomId);
   const [error, setError] = useState(null);
 
   const stopConference = async () => {
@@ -49,12 +58,12 @@ export const Room = withRouter((props) => {
   return (
     <div className="m-3">
       <h3>Комната {roomId}</h3>
-      <h4>Пользователь {myId}</h4>
+      <h3>Игрок {myId}</h3>
       <div id="video-container">
-        {<VideoContainer myStream={myStream} connections={connections} />}
+        {<VideoContainer connections={connections} myPoints={myPoints} myStream={myStream} myId={myId} />}
       </div>
-      <button className="btn btn-success m-3" onClick={stopConference} disabled>
-        Завершить конференцию
+      <button className="btn btn-success m-3" onClick={startGame}>
+        Начать игру
       </button>
       <button className="btn btn-success m-3" onClick={leaveConference}>
         Выйти из конференции

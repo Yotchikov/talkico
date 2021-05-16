@@ -1,13 +1,17 @@
 import { useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import Peer from 'peerjs';
+import { useFace } from './face.hook';
 
 export const useConnection = (roomId) => {
   const [myId, setMyId] = useState('');
   const [connections, setConnections] = useState({});
+  const [answeringUserId, setAnsweringUserId] = useState('');
   const socketRef = useRef();
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
+  const [myPoints, setMyPoints] = useState(0);
+  const { addAR } = useFace();
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -26,6 +30,7 @@ export const useConnection = (roomId) => {
           myPeerId,
           otherUserPeerId,
           otherUserStream: null,
+          points: 0,
         },
       };
     });
@@ -35,7 +40,6 @@ export const useConnection = (roomId) => {
   const addVideoStream = (socketId, stream) => {
     setConnections((prevConnections) => {
       if (prevConnections[socketId]) {
-        console.log('adding');
         const modifiedConnection = {
           ...prevConnections[socketId],
           otherUserStream: stream,
@@ -48,13 +52,27 @@ export const useConnection = (roomId) => {
 
   // Удаление связки peer'ов
   const deleteConnection = (otherUserSocketId) => {
-    let modifiedConnections = { ...connections };
-    delete modifiedConnections[otherUserSocketId];
-    setConnections(modifiedConnections);
+    setConnections((prevConnections) => {
+      let modifiedConnections = { ...prevConnections };
+      delete modifiedConnections[otherUserSocketId];
+      return modifiedConnections;
+    });
+  };
+
+  const addPoints = (socketId, points) => {
+    setConnections((prevConnections) => {
+      if (prevConnections[socketId]) {
+        let modifiedConnection = { ...prevConnections[socketId], points };
+        return { ...prevConnections, [socketId]: modifiedConnection };
+      }
+      return prevConnections;
+    });
   };
 
   // Инициализация событий сокетов
   const initializeSocketEvents = (stream) => {
+    let mySocketId = '';
+
     socketRef.current.emit('join-room', roomId);
 
     socketRef.current.on('room-full', () => {
@@ -63,6 +81,7 @@ export const useConnection = (roomId) => {
 
     socketRef.current.on('join-success', (id, userIdList) => {
       setMyId(id);
+      mySocketId = id;
       tryToConnectToOtherUsers(userIdList, stream);
     });
 
@@ -72,6 +91,18 @@ export const useConnection = (roomId) => {
 
     socketRef.current.on('user-disconnected', (disconnectedUserId) => {
       disconnectFromUser(disconnectedUserId);
+    });
+
+    socketRef.current.on('new-question', async (userId, question) => {
+      answerQuestion(mySocketId, userId, question);
+    });
+
+    socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
+
+    socketRef.current.on('my-points-changed', (points) => setMyPoints(points));
+
+    socketRef.current.on('points-changed', (socketId, points) => {
+      addPoints(socketId, points);
     });
 
     socketRef.current.on('error', (error) => {
@@ -126,16 +157,64 @@ export const useConnection = (roomId) => {
     socketRef.current.disconnect();
   };
 
+  // Начать игру
+  const startGame = () => {
+    socketRef.current.emit('start-game');
+  };
+
+  const answerQuestion = async (mySocketId, userId, question) => {
+    console.log('Новый вопрос');
+    const userVideoElement = document.getElementById(userId);
+    const canvasElement = document.createElement('canvas');
+    canvasElement.className = 'ar-canvas';
+    canvasElement.width = userVideoElement.clientWidth;
+    canvasElement.height = userVideoElement.clientHeight;
+    userVideoElement.parentNode.appendChild(canvasElement);
+
+    const angle = await addAR(userVideoElement, canvasElement, question);
+    userVideoElement.parentNode.removeChild(canvasElement);
+    if (userId === mySocketId) {
+      if (angle > 30) {
+        socketRef.current.emit('new-answer', 'left' === question.correctAnswer);
+      } else if (angle < -30) {
+        socketRef.current.emit('new-answer', 'right' == question.correctAnswer);
+      }
+    }
+  };
+
   // Запуск конференции
-  const start = () => {
+  const start = async () => {
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
-      .then((stream) => {
+      .then(async (stream) => {
         setMyStream(stream);
         socketRef.current = io.connect('/');
+
+        // const video = document.getElementById('video');
+        // const canvas = document.getElementById('overlay');
+        // video.style.transform = 'scale(-1, 1)';
+        // canvas.style.transform = 'scale(-1, 1)';
+        // video.srcObject = stream;
+        // video.autoplay = true;
+
+        // video.addEventListener('playing', async () => {
+        //   canvas.width = video.clientWidth;
+        //   canvas.height = video.clientHeight;
+        //   await addAR(video, canvas, socketRef.current);
+        // });
+
         initializeSocketEvents(stream);
       });
   };
 
-  return { start, connections, isFull, myId, myStream, leaveRoom };
+  return {
+    start,
+    connections,
+    isFull,
+    myId,
+    myStream,
+    leaveRoom,
+    startGame,
+    myPoints,
+  };
 };
