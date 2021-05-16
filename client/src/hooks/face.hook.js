@@ -2,20 +2,30 @@ import * as faceapi from 'face-api.js';
 import { useState } from 'react';
 
 export const useFace = () => {
-  const addAR = async (videoElement, canvasElement, socket) => {
+  const addAR = async (videoElement, canvasElement, question) => {
+    // Подготовка моделей
     await faceapi.loadTinyFaceDetectorModel('/models');
     await faceapi.loadFaceLandmarkModel('/models');
 
-    const vidos = document.getElementById('vidos');
-    vidos.autoPlay = true;
-
-    // let width, height;
+    // Задание необходимых констант и переменных
     const width = videoElement.clientWidth;
     const height = videoElement.clientHeight;
     const ctx = canvasElement.getContext('2d');
-    let startTime, currentTime, initTime;
+    let startTime,
+      currentTime,
+      initTime = new Date();
     let angle = 0;
 
+    // Подготовка картинок с вопросом и ответами
+    const images = {};
+    images.question = new Image();
+    images.question.src = question.text;
+    images.leftAnswer = new Image();
+    images.leftAnswer.src = question.leftAnswer;
+    images.rightAnswer = new Image();
+    images.rightAnswer.src = question.rightAnswer;
+
+    // Метод определения угла наклона головы
     const getAngle = (landmarks) => {
       const point1 = landmarks.getLeftEyeBrow()[0];
       const point2 = landmarks.getRightEyeBrow()[4];
@@ -24,6 +34,7 @@ export const useFace = () => {
       );
     };
 
+    // Отрисовка карточек с вопросом и ответами поверх головы игрока
     const drawCard = (landmarks, images) => {
       // ctx.drawImage(videoElement, 0, 0);
       const { question, leftAnswer, rightAnswer } = images;
@@ -83,14 +94,14 @@ export const useFace = () => {
       ctx.restore();
     };
 
-    const animate = async (question, images) => {
+    // Функция анимации
+    const animate = async () => {
       // Если игрок думает больше 10 секунд
       // if (new Date() - initTime > 10000) {
       //   socket.emit('new-answer', false);
       //   ctx.clearRect(0, 0, width, height);
       //   return;
       // }
-
       const videoCanvas = document.createElement('canvas');
       videoCanvas.width = videoElement.clientWidth;
       videoCanvas.height = videoElement.clientHeight;
@@ -107,7 +118,6 @@ export const useFace = () => {
         // faceapi.draw.drawFaceLandmarks(canvasElement, detectionWithLandmarks);
         drawCard(detectionWithLandmarks.landmarks, images);
         angle = getAngle(detectionWithLandmarks.landmarks);
-        // vidos.srcObject = canvasElement.captureStream();
       }
 
       // Если игрок не наклонил голову - обнулить время наклона
@@ -115,46 +125,21 @@ export const useFace = () => {
         startTime = new Date();
       }
 
-      // Игрок наклонил голову влево
-      if (angle > 30) {
+      // Игрок наклонил голову влево или вправо
+      if (angle > 30 || angle < -30) {
         currentTime = new Date();
         if (currentTime - startTime > 3000) {
           startTime = new Date();
-          socket.emit('new-answer', 'left' === question.correctAnswer);
+          // socket.emit('new-answer', 'left' === question.correctAnswer);
           ctx.clearRect(0, 0, width, height);
-          return;
+          return angle;
         }
       }
 
-      // Игрок наклонил голову вправо
-      if (angle < -30) {
-        currentTime = new Date();
-        if (currentTime - startTime > 3000) {
-          startTime = new Date();
-          socket.emit('new-answer', 'right' === question.correctAnswer);
-          ctx.clearRect(0, 0, width, height);
-          return;
-        }
-      }
-
-      // Новый кадр анимации
-      requestAnimationFrame(async () => {
-        await animate(question, images);
-      });
+      return animate();
     };
 
-    // Поступил новый вопрос от сервера
-    socket.on('new-question', async (question) => {
-      initTime = new Date();
-      const images = {};
-      images.question = new Image();
-      images.question.src = question.text;
-      images.leftAnswer = new Image();
-      images.leftAnswer.src = question.leftAnswer;
-      images.rightAnswer = new Image();
-      images.rightAnswer.src = question.rightAnswer;
-      await animate(question, images);
-    });
+    return await animate();
   };
 
   return { addAR };

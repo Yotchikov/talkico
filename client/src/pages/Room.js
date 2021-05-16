@@ -60,7 +60,7 @@ export const Room = withRouter((props) => {
       <h3>Комната {roomId}</h3>
       <h3>Игрок {myId}</h3>
       <div id="video-container">
-        {<VideoContainer myPoints={myPoints} connections={connections} />}
+        {<VideoContainer connections={connections} myPoints={myPoints} myStream={myStream} myId={myId} />}
       </div>
       <button className="btn btn-success m-3" onClick={startGame}>
         Начать игру
@@ -68,7 +68,6 @@ export const Room = withRouter((props) => {
       <button className="btn btn-success m-3" onClick={leaveConference}>
         Выйти из конференции
       </button>
-      <video id="vidos" playsInline autoPlay />
     </div>
   );
 });

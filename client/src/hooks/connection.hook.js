@@ -71,6 +71,8 @@ export const useConnection = (roomId) => {
 
   // Инициализация событий сокетов
   const initializeSocketEvents = (stream) => {
+    let mySocketId = '';
+
     socketRef.current.emit('join-room', roomId);
 
     socketRef.current.on('room-full', () => {
@@ -79,6 +81,7 @@ export const useConnection = (roomId) => {
 
     socketRef.current.on('join-success', (id, userIdList) => {
       setMyId(id);
+      mySocketId = id;
       tryToConnectToOtherUsers(userIdList, stream);
     });
 
@@ -88,6 +91,10 @@ export const useConnection = (roomId) => {
 
     socketRef.current.on('user-disconnected', (disconnectedUserId) => {
       disconnectFromUser(disconnectedUserId);
+    });
+
+    socketRef.current.on('new-question', async (userId, question) => {
+      answerQuestion(mySocketId, userId, question);
     });
 
     socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
@@ -155,6 +162,26 @@ export const useConnection = (roomId) => {
     socketRef.current.emit('start-game');
   };
 
+  const answerQuestion = async (mySocketId, userId, question) => {
+    console.log('Новый вопрос');
+    const userVideoElement = document.getElementById(userId);
+    const canvasElement = document.createElement('canvas');
+    canvasElement.className = 'ar-canvas';
+    canvasElement.width = userVideoElement.clientWidth;
+    canvasElement.height = userVideoElement.clientHeight;
+    userVideoElement.parentNode.appendChild(canvasElement);
+
+    const angle = await addAR(userVideoElement, canvasElement, question);
+    userVideoElement.parentNode.removeChild(canvasElement);
+    if (userId === mySocketId) {
+      if (angle > 30) {
+        socketRef.current.emit('new-answer', 'left' === question.correctAnswer);
+      } else if (angle < -30) {
+        socketRef.current.emit('new-answer', 'right' == question.correctAnswer);
+      }
+    }
+  };
+
   // Запуск конференции
   const start = async () => {
     navigator.mediaDevices
@@ -163,19 +190,20 @@ export const useConnection = (roomId) => {
         setMyStream(stream);
         socketRef.current = io.connect('/');
 
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('overlay');
-        video.style.transform = 'scale(-1, 1)';
-        canvas.style.transform = 'scale(-1, 1)';
-        video.srcObject = stream;
-        video.autoplay = true;
+        // const video = document.getElementById('video');
+        // const canvas = document.getElementById('overlay');
+        // video.style.transform = 'scale(-1, 1)';
+        // canvas.style.transform = 'scale(-1, 1)';
+        // video.srcObject = stream;
+        // video.autoplay = true;
 
-        video.addEventListener('playing', async () => {
-          canvas.width = video.clientWidth;
-          canvas.height = video.clientHeight;
-          await addAR(video, canvas, socketRef.current);
-          initializeSocketEvents(stream);
-        });
+        // video.addEventListener('playing', async () => {
+        //   canvas.width = video.clientWidth;
+        //   canvas.height = video.clientHeight;
+        //   await addAR(video, canvas, socketRef.current);
+        // });
+
+        initializeSocketEvents(stream);
       });
   };
 

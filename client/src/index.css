@@ -15,11 +15,15 @@ body {
 }
 
 .styled-video {
-  border-radius: 10px;
   transform: scale(-1, 1);
 }
 
 .video-box {
   display: flex;
+}
 
+.ar-canvas {
+  transform: scale(-1, 1);
+  position: absolute;
+  z-index: 100;
 }
