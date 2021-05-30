@@ -11,6 +11,7 @@ export const useConnection = (roomId) => {
   const [isFull, setIsFull] = useState(false);
   const [myStream, setMyStream] = useState(null);
   const [myPoints, setMyPoints] = useState(0);
+  const [winner, setWinner] = useState(null);
   const { addAR } = useFace();
 
   // Инициализация нового peer'a
@@ -94,10 +95,11 @@ export const useConnection = (roomId) => {
     });
 
     socketRef.current.on('new-question', async (userId, question) => {
+      setWinner(null);
       answerQuestion(mySocketId, userId, question);
     });
 
-    socketRef.current.on('win', (id) => alert(`Игрок ${id} победил!`));
+    socketRef.current.on('win', (newWinner) => setWinner(newWinner));
 
     socketRef.current.on('my-points-changed', (points) => setMyPoints(points));
 
@@ -177,7 +179,7 @@ export const useConnection = (roomId) => {
       if (angle > 30) {
         socketRef.current.emit('new-answer', 'left' === question.correctAnswer);
       } else if (angle < -30) {
-        socketRef.current.emit('new-answer', 'right' == question.correctAnswer);
+        socketRef.current.emit('new-answer', 'right' === question.correctAnswer);
       }
     }
   };
@@ -189,20 +191,6 @@ export const useConnection = (roomId) => {
       .then(async (stream) => {
         setMyStream(stream);
         socketRef.current = io.connect('/');
-
-        // const video = document.getElementById('video');
-        // const canvas = document.getElementById('overlay');
-        // video.style.transform = 'scale(-1, 1)';
-        // canvas.style.transform = 'scale(-1, 1)';
-        // video.srcObject = stream;
-        // video.autoplay = true;
-
-        // video.addEventListener('playing', async () => {
-        //   canvas.width = video.clientWidth;
-        //   canvas.height = video.clientHeight;
-        //   await addAR(video, canvas, socketRef.current);
-        // });
-
         initializeSocketEvents(stream);
       });
   };
@@ -216,5 +204,6 @@ export const useConnection = (roomId) => {
     leaveRoom,
     startGame,
     myPoints,
+    winner
   };
 };

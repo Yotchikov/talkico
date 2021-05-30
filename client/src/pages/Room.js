@@ -19,6 +19,7 @@ export const Room = withRouter((props) => {
     isFull,
     startGame,
     myId,
+    winner,
   } = useConnection(roomId);
   const [error, setError] = useState(null);
 
@@ -55,12 +56,34 @@ export const Room = withRouter((props) => {
     return <ErrorPage error={error} />;
   }
 
+  if (winner) {
+    return (
+      <div className="d-flex align-items-end justify-content-center h-100 m-5">
+        <div className="container jumbotron w-50 text-center">
+          <h1>У нас есть победитель!</h1>
+          <h5 className="mt-3">
+            В этой игре победил {winner.id}, набрав {winner.points} очков!
+          </h5>
+          <hr />
+          <button className="btn btn-success m-3" onClick={startGame}>
+            Начать новую игру
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="m-3">
-      <h3>Комната {roomId}</h3>
-      <h3>Игрок {myId}</h3>
       <div id="video-container">
-        {<VideoContainer connections={connections} myPoints={myPoints} myStream={myStream} myId={myId} />}
+        {
+          <VideoContainer
+            connections={connections}
+            myPoints={myPoints}
+            myStream={myStream}
+            myId={myId}
+          />
+        }
       </div>
       <button className="btn btn-success m-3" onClick={startGame}>
         Начать игру

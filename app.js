@@ -111,12 +111,11 @@ async function start() {
               if (
                 rooms[roomId][gameSessions[roomId].playersCounter].points >= 20
               ) {
-                io.sockets
-                  .in(roomId)
-                  .emit(
-                    'win',
-                    rooms[roomId][gameSessions[roomId].playersCounter].id
-                  );
+                io.sockets.in(roomId).emit('win', {
+                  id: rooms[roomId][gameSessions[roomId].playersCounter].id,
+                  points:
+                    rooms[roomId][gameSessions[roomId].playersCounter].points,
+                });
               } else {
                 // Передача хода следующему игроку
                 gameSessions[roomId].playersCounter =
@@ -134,12 +133,11 @@ async function start() {
               rooms[roomId][gameSessions[roomId].playersCounter].points >= 2
             ) {
               // Если кол-во очков больше 20 - игра окончена
-              io.sockets
-                .in(roomId)
-                .emit(
-                  'win',
-                  rooms[roomId][gameSessions[roomId].playersCounter].id
-                );
+              io.sockets.in(roomId).emit('win', {
+                id: rooms[roomId][gameSessions[roomId].playersCounter].id,
+                points:
+                  rooms[roomId][gameSessions[roomId].playersCounter].points,
+              });
             } else {
               // Задается еще один вопрос
               io.sockets
