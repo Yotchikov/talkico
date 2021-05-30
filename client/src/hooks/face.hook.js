@@ -130,7 +130,6 @@ export const useFace = () => {
         currentTime = new Date();
         if (currentTime - startTime > 3000) {
           startTime = new Date();
-          // socket.emit('new-answer', 'left' === question.correctAnswer);
           ctx.clearRect(0, 0, width, height);
           return angle;
         }
@@ -142,5 +141,25 @@ export const useFace = () => {
     return await animate();
   };
 
-  return { addAR };
+  const answerOutline = async (videoElement, isCorrect) => {
+    let time = 0;
+    let timer = setInterval(() => {
+      if (time < 200) {
+        videoElement.style.boxShadow =
+          `0px 0px 10px ${time * 0.05}px ` +
+          (isCorrect ? 'rgba(31, 148, 18, 0.4)' : 'rgba(148, 18, 18, 0.4)');
+      }
+      time += 20;
+      if (time > 1000) {
+        videoElement.style.boxShadow =
+          `0px 0px 10px ${10 - (time - 200) * 0.05}px ` +
+          (isCorrect ? 'rgba(31, 148, 18, 0.4)' : 'rgba(148, 18, 18, 0.4)');
+      }
+      if (time > 1200) {
+        clearInterval(timer);
+      }
+    }, 20);
+  };
+
+  return { addAR, answerOutline };
 };

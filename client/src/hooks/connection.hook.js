@@ -12,7 +12,7 @@ export const useConnection = (roomId) => {
   const [myStream, setMyStream] = useState(null);
   const [myPoints, setMyPoints] = useState(0);
   const [winner, setWinner] = useState(null);
-  const { addAR } = useFace();
+  const { addAR, answerOutline } = useFace();
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
@@ -161,6 +161,7 @@ export const useConnection = (roomId) => {
 
   // Начать игру
   const startGame = () => {
+    setWinner(null);
     socketRef.current.emit('start-game');
   };
 
@@ -177,8 +178,10 @@ export const useConnection = (roomId) => {
     userVideoElement.parentNode.removeChild(canvasElement);
     if (userId === mySocketId) {
       if (angle > 30) {
+        await answerOutline(userVideoElement, 'left' === question.correctAnswer);
         socketRef.current.emit('new-answer', 'left' === question.correctAnswer);
       } else if (angle < -30) {
+        await answerOutline(userVideoElement, 'right' === question.correctAnswer);
         socketRef.current.emit('new-answer', 'right' === question.correctAnswer);
       }
     }
