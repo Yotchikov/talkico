@@ -27,7 +27,11 @@ export const Navbar = () => {
     );
   return (
     <nav className="navbar navbar-light bg-light">
-      <span className="navbar-brand mb-0 h1">AR Conference</span>
+      <div className="container-fluid">
+        <a href="/" className="navbar-brand mb-0 h1">
+          AR Conference
+        </a>
+      </div>
     </nav>
   );
 };

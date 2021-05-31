@@ -32,46 +32,52 @@ export const Auth = () => {
   };
 
   return (
-    <form className="m-3">
-      <div className="form-group">
-        <label htmlFor="email">Email</label>
+    <div className="m-5 align-items-center text-center">
+      <form style={{ width: '100%', maxWidth: '330px', margin: 'auto' }}>
+        <h1>AR Conference</h1>
         <input
           type="text"
-          className="form-control"
+          className="form-control p-3"
+          style={{
+            marginBottom: '-1px',
+            borderBottomRightRadius: 0,
+            borderBottomLeftRadius: 0,
+          }}
           value={form.email}
           name="email"
           aria-describedby="emailHelp"
           placeholder="Email"
           onChange={handleInput}
         />
-      </div>
-      <div className="form-group">
-        <label htmlFor="password">Пароль</label>
         <input
           type="password"
-          className="form-control"
+          className="form-control p-3"
+          style={{
+            borderTopRightRadius: 0,
+            borderTopLeftRadius: 0,
+          }}
           value={form.password}
           name="password"
           placeholder="Пароль"
           onChange={handleInput}
         />
-      </div>
-      <button
-        type="submit"
-        className="btn btn-success mr-3"
-        onClick={handleLogin}
-        disabled={loading}
-      >
-        Войти
-      </button>
-      <button
-        type="submit"
-        className="btn btn-outline-success"
-        onClick={handleRegister}
-        disabled={loading}
-      >
-        Зарегистрироваться
-      </button>
-    </form>
+        <button
+          type="submit"
+          className="btn btn-primary btn-lg mt-3 m-1"
+          onClick={handleLogin}
+          disabled={loading}
+        >
+          Войти
+        </button>
+        <button
+          type="submit"
+          className="btn btn-outline-primary btn-lg mt-3 m-1"
+          onClick={handleRegister}
+          disabled={loading}
+        >
+          Зарегистрироваться
+        </button>
+      </form>
+    </div>
   );
 };

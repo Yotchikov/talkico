@@ -28,14 +28,21 @@ export const VideoContainer = (props) => {
             autoPlay
           />
           <div className="card-body">
-            <h6 className="card-title">{myPoints} очков</h6>
+            <h6 className="card-title">
+              <mark>
+                <em>{myId}</em>
+              </mark>{' '}
+              {myPoints} очков
+            </h6>
           </div>
         </div>
       </div>
 
       {videoList().length > 0 && (
         <div className="col-6">
-          <div className={'row' + (videoList().length > 1 ? ' row-cols-2' : '')}>
+          <div
+            className={'row' + (videoList().length > 1 ? ' row-cols-2' : '')}
+          >
             {videoList().map((element) => {
               return (
                 <div className="col">
@@ -45,7 +52,12 @@ export const VideoContainer = (props) => {
                       userId={element.id}
                     />
                     <div className="card-body">
-                      <h6>{element.points} очков</h6>
+                      <h6>
+                        <mark>
+                          <em>{element.id}</em>
+                        </mark>{' '}
+                        {element.points} очков
+                      </h6>
                     </div>
                   </div>
                 </div>
