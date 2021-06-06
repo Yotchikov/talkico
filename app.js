@@ -190,7 +190,7 @@ async function start() {
       });
     });
 
-    server.listen(PORT, () => {
+    server.listen(PORT, '192.168.1.57', () => {
       console.log(`App has been started on port ${PORT}...`);
     });
   } catch (e) {

@@ -16,10 +16,7 @@ export const useConnection = (roomId) => {
 
   // Инициализация нового peer'a
   const initializeNewPeer = (port = 3001) => {
-    return new Peer('', {
-      host: '/',
-      port,
-    });
+    return new Peer();
   };
 
   // Добавление новой связки peer'ов
@@ -178,11 +175,20 @@ export const useConnection = (roomId) => {
     userVideoElement.parentNode.removeChild(canvasElement);
     if (userId === mySocketId) {
       if (angle > 30) {
-        await answerOutline(userVideoElement, 'left' === question.correctAnswer);
+        await answerOutline(
+          userVideoElement,
+          'left' === question.correctAnswer
+        );
         socketRef.current.emit('new-answer', 'left' === question.correctAnswer);
       } else if (angle < -30) {
-        await answerOutline(userVideoElement, 'right' === question.correctAnswer);
-        socketRef.current.emit('new-answer', 'right' === question.correctAnswer);
+        await answerOutline(
+          userVideoElement,
+          'right' === question.correctAnswer
+        );
+        socketRef.current.emit(
+          'new-answer',
+          'right' === question.correctAnswer
+        );
       }
     }
   };
@@ -207,6 +213,6 @@ export const useConnection = (roomId) => {
     leaveRoom,
     startGame,
     myPoints,
-    winner
+    winner,
   };
 };

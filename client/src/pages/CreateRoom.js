@@ -24,11 +24,15 @@ export const CreateRoom = withRouter((props) => {
           style={{
             width: '330px',
             height: '440px',
+            zIndex: '0',
             transform: 'rotate(45deg)',
           }}
         ></img>
       </div>
-      <div className="d-flex align-items-end justify-content-center h-100 m-5">
+      <div
+        className="d-flex align-items-end justify-content-center h-100 m-5"
+        style={{ zIndex: '10' }}
+      >
         <div className="container jumbotron w-50">
           <h1>Добро пожаловать на сайт игровых видеоконференций!</h1>
           <p>
