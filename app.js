@@ -82,9 +82,15 @@ async function start() {
           console.log(`Игра в комнате ${roomId} началась`);
           gameSessions[roomId] = {
             playersCounter: 0,
-            questionsCounter: 0,
+            questionsCounter: 1,
             winStreakCounter: 0,
           };
+
+          rooms[roomId].forEach((player) => {
+            player.points = 0;
+            socket.emit('my-points-changed', 0);
+            socket.to(roomId).broadcast.emit('points-changed', socket.id, 0);
+          });
 
           // Задаем вопрос 1-му игроку
           io.sockets
@@ -126,7 +132,7 @@ async function start() {
                   .emit(
                     'new-question',
                     rooms[roomId][gameSessions[roomId].playersCounter].id,
-                    questions[gameSessions[roomId].questionsCounter++]
+                    questions[gameSessions[roomId].questionsCounter++ % 2]
                   );
               }
             } else if (
@@ -145,7 +151,7 @@ async function start() {
                 .emit(
                   'new-question',
                   rooms[roomId][gameSessions[roomId].playersCounter].id,
-                  questions[gameSessions[roomId].questionsCounter++]
+                  questions[gameSessions[roomId].questionsCounter++ % 2]
                 );
             }
             socket.emit(
@@ -170,7 +176,7 @@ async function start() {
               .emit(
                 'new-question',
                 rooms[roomId][gameSessions[roomId].playersCounter].id,
-                questions[gameSessions[roomId].questionsCounter++]
+                questions[gameSessions[roomId].questionsCounter++ % 2]
               );
           }
           console.log(

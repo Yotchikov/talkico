@@ -17,30 +17,6 @@
       "leftAnswer": "https://i.ibb.co/p0qnR2J/text2image-F5055005-20210510-211144.png",
       "rightAnswer": "https://i.ibb.co/R7tr02n/text2image-R8250933-20210510-211229.png",
       "correctAnswer": "left"
-    },
-    {
-      "text": "В верховьях какой реки расположен Смоленск? >",
-      "leftAnswer": "Волга",
-      "rightAnswer": "Днепр",
-      "correctAnswer": "right"
-    },
-    {
-      "text": "Какое геометрическое тело получается вращением круга вокруг своего диаметра? <",
-      "leftAnswer": "Шар",
-      "rightAnswer": "Конус",
-      "correctAnswer": "left"
-    },
-    {
-      "text": "Что Пифагор называл «царём приправ»? >",
-      "leftAnswer": "Черный перец",
-      "rightAnswer": "Чеснок",
-      "correctAnswer": "right"
-    },
-    {
-      "text": ">",
-      "leftAnswer": "a",
-      "rightAnswer": "b",
-      "correctAnswer": "right"
     }
   ]
 }

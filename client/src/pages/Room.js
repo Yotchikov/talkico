@@ -22,6 +22,7 @@ export const Room = withRouter((props) => {
     winner,
   } = useConnection(roomId);
   const [error, setError] = useState(null);
+  const [gameStarted, setGamesStarted] = useState(false);
 
   const stopConference = async () => {
     try {
@@ -92,7 +93,11 @@ export const Room = withRouter((props) => {
           <button
             className="btn btn-success m-3"
             style={{ width: '200px' }}
-            onClick={startGame}
+            onClick={() => {
+              startGame();
+              setGamesStarted(true);
+            }}
+            disabled={gameStarted}
           >
             Начать игру
           </button>
